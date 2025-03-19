@@ -12,7 +12,12 @@ Crear un sistema que active promociones de merchandaising basado en:
 
 ## Estado Git
 
-main ──┬── develope
-       ├── release
-       ├── feature/API-Football
-       └── feature/API-Score
+         main
+           │
+           ├── develope
+           │
+           ├── release
+           │
+           ├── feature/API-Football
+           │
+           └── feature/API-Score
