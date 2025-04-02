@@ -7,6 +7,10 @@
     <groupId>org.example</groupId>
     <artifactId>LiveSportsPromo</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <modules>
+        <module>football-feeder</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>22</maven.compiler.source>
