@@ -3,8 +3,7 @@ public class FixtureStatus {
     private int elapsedMinutes;
     private int extraMinutes;
 
-    public FixtureStatus(StatusDescription description, int elapsedMinutes) {
+    public FixtureStatus(StatusDescription description) {
         this.description = description;
-        this.elapsedMinutes = elapsedMinutes;
     }
 }

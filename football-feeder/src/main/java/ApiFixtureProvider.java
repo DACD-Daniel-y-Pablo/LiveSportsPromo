@@ -8,6 +8,8 @@ import okhttp3.Response;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 
 public class ApiFixtureProvider implements FixtureProvider {
@@ -23,7 +25,7 @@ public class ApiFixtureProvider implements FixtureProvider {
 
 
     @Override
-    public ArrayList<Fixture> getFixturesByDate(LocalDate date) throws IOException {
+    public ArrayList<Fixture> getFixturesByDate(LocalDate date, FootballLeague league) throws IOException {
         Request.Builder builder = new Request.Builder();
         builder.url(this.urlBase + "/fixtures?date=" + date.toString());
         builder.addHeader("x-rapid-host", "v3.football.api-sports.io");
@@ -33,7 +35,7 @@ public class ApiFixtureProvider implements FixtureProvider {
             assert response.body() != null;
             String jsonResponse = response.body().string();
             JsonArray fixturesParsing = parsingJson(jsonResponse);
-            return filterFixtures(fixturesParsing);
+            return filterFixtures(fixturesParsing, league);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -54,30 +56,51 @@ public class ApiFixtureProvider implements FixtureProvider {
         return responseJson.get("response").getAsJsonArray();
     }
 
-    public ArrayList<Fixture> filterFixtures(JsonArray fixturesArray)
+    public ArrayList<Fixture> filterFixtures(JsonArray fixturesArray, FootballLeague league)
     {
         ArrayList<Fixture> fixtures = new ArrayList<>();
         for (JsonElement fixtureElement : fixturesArray) {
             JsonObject fixtureObject = fixtureElement.getAsJsonObject();
-
-
-            JsonObject fixtureData = fixtureObject.getAsJsonObject("fixture");
-            int fixtureId = fixtureData.get("id").getAsInt();
-            String date = fixtureData.get("date").getAsString();
-
-            JsonObject teams = fixtureObject.getAsJsonObject("teams");
-            String homeTeam = teams.getAsJsonObject("home").get("name").getAsString();
-            String awayTeam = teams.getAsJsonObject("away").get("name").getAsString();
-
-
             JsonObject leagues = fixtureObject.getAsJsonObject("league");
+            // LeagueID
             int leagueId = leagues.get("id").getAsInt();
+            if (leagueId == league.getId()) {
+                // LeagueName
+                String leagueName = leagues.get("name").getAsString();
+                JsonObject fixtureData = fixtureObject.getAsJsonObject("fixture");
+                // Obtenemos el fixtureID
+                int fixtureId = fixtureData.get("id").getAsInt();
+                // Parsear y separar
+                String date = fixtureData.get("date").getAsString();
+                OffsetDateTime fixtureDate = OffsetDateTime.parse(date);
+                // Fixturedate
+                String onlyDate = fixtureDate.toLocalDate().toString();
+                // FixtureHour
+                String hour = fixtureDate.toLocalTime().toString();
+                JsonObject teams = fixtureObject.getAsJsonObject("teams");
+                // HomeTeamId
+                int homeId = teams.getAsJsonObject("home").get("id").getAsInt();
+                // AwayTeamId
+                int awayId = teams.getAsJsonObject("away").get("id").getAsInt();
+                // nameHomeTeam
+                String homeTeamName = teams.getAsJsonObject("home").get("name").getAsString();
+                // nameAwayTeam
+                String awayTeamName = teams.getAsJsonObject("away").get("name").getAsString();
 
-            if (leagueId == 140) {
-                System.out.println("Partido ID: " + fixtureId);
-                System.out.println("Fecha: " + date);
-                System.out.println("Equipos: " + homeTeam + " vs " + awayTeam);
-                System.out.println("----------------------");
+                // StatusFixture
+                String status = fixtureData.getAsJsonObject("status").get("short").getAsString();
+                Team homeTeam = new Team(homeId, homeTeamName);
+                Team awayTeam = new Team(awayId, awayTeamName);
+                Fixture fixtureInterested = new Fixture(
+                        homeTeam,
+                        awayTeam,
+                        fixtureId,
+                        LocalDate.parse(onlyDate),
+                        LocalTime.parse(hour),
+                        StatusDescription.fromApiValue(status),
+                        league
+                );
+                fixtures.add(fixtureInterested);
             }
         }
         return fixtures;

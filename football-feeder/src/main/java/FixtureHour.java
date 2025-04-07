@@ -5,6 +5,10 @@ public class FixtureHour {
     private LocalTime time;
 
     public FixtureHour(LocalTime time) {
+
         this.time = time;
+    }
+    public LocalTime getTime() {
+        return time;
     }
 }

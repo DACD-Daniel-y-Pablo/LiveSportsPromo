@@ -1,9 +1,7 @@
 public class FixtureLeague {
-    private int id;
-    private String name;
+    private FootballLeague footballLeague;
 
-    public FixtureLeague(int id, String name) {
-        this.id = id;
-        this.name = name;
+    public FixtureLeague(FootballLeague footballLeague) {
+        this.footballLeague = footballLeague;
     }
 }

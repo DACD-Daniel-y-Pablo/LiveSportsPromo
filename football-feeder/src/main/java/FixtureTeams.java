@@ -6,4 +6,12 @@ public class FixtureTeams {
         this.homeTeam = homeTeam;
         this.awayTeam = awayTeam;
     }
+
+    public Team getHomeTeam() {
+        return homeTeam;
+    }
+
+    public Team getAwayTeam() {
+        return awayTeam;
+    }
 }

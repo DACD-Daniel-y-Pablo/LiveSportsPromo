@@ -7,6 +7,10 @@ public class FixtureDate {
         this.date = date;
     }
 
+    public LocalDate getDate() {
+        return date;
+    }
+
     private boolean ensureIsValid(LocalDate date) {
         // TODO
         return false;

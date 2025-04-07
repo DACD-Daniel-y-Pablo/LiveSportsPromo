@@ -4,4 +4,8 @@ public class FixtureId {
     public FixtureId(int id) {
         this.id = id;
     }
+
+    public int getId() {
+        return id;
+    }
 }
