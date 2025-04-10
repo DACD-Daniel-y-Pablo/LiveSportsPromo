@@ -1,5 +1,11 @@
+package entities;
+
 public enum FootballLeague {
-    LALIGA(140, "La Liga");
+    LALIGA(140, "La Liga"),
+    UEFA_EUROPA_LEAGUE(2, "UEFA Europa League"),
+    COPA_ARGENTINA(130, "Copa Argentina")
+    ;
+
 
     private final int id;
     private final String name;

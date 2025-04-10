@@ -1,3 +1,5 @@
+package entities;
+
 public enum StatusDescription {
     TIME_TO_BE_DEFINED("TBD"),
     NOT_STARTED("NS"),
