@@ -1,0 +1,36 @@
+import random
+
+def tweets_selecter(diccionario, numero_tweets, evento):
+    tweets = []
+    controlador = []
+
+    for i in range(numero_tweets):
+
+        numero = random.randint(1, (len(diccionario[evento])-1))
+
+        if numero not in controlador:
+            tweet = diccionario[evento][numero]
+            controlador.append(numero)
+            tweets.append(tweet)
+
+    return tweets
+
+def mocktwitters(evento, jugador):
+
+    diccionario = {
+        "gol": [f"vaya golazo de {jugador}", "ha entrado con un poco de suerte", f"{jugador} ha marcado un gol de bandera"],
+        "tarjeta" : [f"vaya animal, {jugador} entrado con los tacos a la altura de la rodilla", f"entrada de tarjeta {jugador} será amonestado 4 partidos", f"El árbitro se equivoca con la tarjeta señalada a {jugador}"]
+    }
+
+    numero_tweets = random.randint(1, (len(diccionario[evento])-1))
+
+    tweets = tweets_selecter(diccionario, numero_tweets, evento)
+    for tweet in tweets:
+        likes = random.randint(0, 10000)
+        comments = random.randint(0, 5000)
+        retweets = random.randint(0, 7500)
+        return(tweet, likes, comments, retweets)
+
+
+for x in range(100):
+    print(mocktwitters("gol", "vinicus"))
