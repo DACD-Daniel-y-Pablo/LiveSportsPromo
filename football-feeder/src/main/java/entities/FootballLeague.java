@@ -1,9 +1,9 @@
 package entities;
 
 public enum FootballLeague {
-    LALIGA(140, "La Liga"),
-    UEFA_EUROPA_LEAGUE(2, "UEFA Europa League"),
-    COPA_ARGENTINA(130, "Copa Argentina")
+    LA_LIGA(140, "La Liga"),
+    COPA_ARGENTINA(130, "Copa Argentina"),
+    UEFA_CHAMPIONS_LEAGUE(2, "UEFA Champions League"),
     ;
 
 

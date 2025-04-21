@@ -34,5 +34,17 @@
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.49.1.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.activemq/activemq-broker -->
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-broker</artifactId>
+            <version>5.19.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.activemq/activemq-client -->
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-client</artifactId>
+            <version>5.19.0</version>
+        </dependency>
     </dependencies>
 </project>

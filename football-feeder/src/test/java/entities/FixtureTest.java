@@ -17,7 +17,7 @@ public class FixtureTest {
         LocalDateTime expectedDateTime = LocalDateTime.of(2023, 10, 28, 20, 45);
         String expectedTimeZone = "UTC";
         StatusDescription expectedStatus = StatusDescription.NOT_STARTED;
-        FootballLeague expectedLeague = FootballLeague.LALIGA;
+        FootballLeague expectedLeague = FootballLeague.LA_LIGA;
         String expectedFixture = "Real Madrid vs Barcelona";
 
         Fixture fixture = new Fixture(

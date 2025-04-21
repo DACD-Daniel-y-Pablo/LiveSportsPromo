@@ -1,6 +1,7 @@
 package useCases;
 
 import adapters.ApiFixtureProvider;
+import adapters.MockFixtureProvider;
 import adapters.SqliteEventStore;
 import entities.Event;
 import entities.Fixture;
@@ -21,10 +22,10 @@ import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
 public class Control {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private final ApiFixtureProvider api;
+    private final MockFixtureProvider api;
     private final SqliteEventStore db;
 
-    public Control(ApiFixtureProvider api, SqliteEventStore db) {
+    public Control(MockFixtureProvider api, SqliteEventStore db) {
         this.api = api;
         this.db = db;
     }
@@ -39,7 +40,7 @@ public class Control {
             for (Fixture fixture : fixtures) {
                 int callsPerFixture = api.getCallsLimit() / fixtures.size();
                 System.out.println("Procesando encuentro: " + fixture.getFixture());
-                long delayPlusTenMinutes = Duration.between(LocalDateTime.now(), fixture.getDateTime()).getSeconds() + (60 * 10);
+                long delayPlusTenMinutes = Duration.between(LocalDateTime.now(), fixture.getDateTime()).getSeconds() + 60;
 
                 if (delayPlusTenMinutes > 0) {
                     scheduler.schedule(
@@ -47,7 +48,7 @@ public class Control {
                             delayPlusTenMinutes,
                             TimeUnit.SECONDS
                     );
-                    System.out.println("Listener programado para: " + fixture.getDateTime().plusMinutes(10));
+                    System.out.println("Listener programado para: " + fixture.getDateTime().plusSeconds(60));
                 } else {
                     System.out.println("El partido ya comenzó o finalizo");
                 }
