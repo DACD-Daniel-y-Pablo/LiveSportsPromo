@@ -1,19 +1,16 @@
-# API-Score  
+# API-Football
 
-Este módulo se encarga de analizar la cobertura mediática de eventos deportivos y calcular un "score" que determinará descuentos en la tienda.  
+Este módulo se encarga de la integración de datos de eventos deportivos en tiempo real (goles, tarjetas, resultados, etc.).
 
 ## Objetivo  
 
-La API utilizará fuentes de noticias en tiempo real para medir la repercusión de un evento (como un gol o una expulsión) y calcular un índice de impacto.  
-
-### ¿Cómo funciona?  
-
-- **Recopilar noticias** en tiempo real sobre un jugador o equipo después de un evento clave.  
-- **Analizar la frecuencia** con la que se menciona un jugador o equipo en titulares y artículos.  
-- **Calcular un score** basado en el número de menciones y relevancia de las fuentes.  
-- **Determinar el porcentaje de descuento** en camisetas según la notoriedad del evento.  
+La API proporcionará información en vivo sobre los partidos de fútbol, incluyendo:  
+- **Goles**: Quién anotó y en qué minuto.  
+- **Eventos clave**: Tarjetas amarillas/rojas, sustituciones, penaltis.  
+- **Estadísticas**: Posesión, disparos, pases, etc.  
 
 ## Uso en el Proyecto  
 
-Si un jugador marca un gol decisivo, se consultará NewsAPI para analizar cuántos medios lo reportan y con qué intensidad. Cuantas más menciones tenga, mayor será el descuento aplicado a su camiseta en la tienda online.  
+La información de los partidos en tiempo real se usará para activar promociones en la tienda. Por ejemplo, si un jugador marca un gol, su camiseta podrá recibir un descuento dinámico basado en el impacto del evento.  
 
+---
