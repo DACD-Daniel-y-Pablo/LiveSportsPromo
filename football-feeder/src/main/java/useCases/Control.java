@@ -1,5 +1,6 @@
 package useCases;
 
+import adapters.ActiveMQEventSender;
 import adapters.ApiFixtureProvider;
 import adapters.MockFixtureProvider;
 import adapters.SqliteEventStore;
@@ -23,9 +24,9 @@ import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 public class Control {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final MockFixtureProvider api;
-    private final SqliteEventStore db;
+    private final ActiveMQEventSender db;
 
-    public Control(MockFixtureProvider api, SqliteEventStore db) {
+    public Control(MockFixtureProvider api, ActiveMQEventSender db) {
         this.api = api;
         this.db = db;
     }

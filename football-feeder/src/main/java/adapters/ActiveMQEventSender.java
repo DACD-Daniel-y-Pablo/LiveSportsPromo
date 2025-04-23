@@ -6,6 +6,7 @@ import ports.FixtureEventStore;
 
 import javax.jms.*;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -80,7 +81,8 @@ public class ActiveMQEventSender implements FixtureEventStore {
     private String serializeEvent(Event event) {
         // Implementación básica - considera usar una librería JSON como Jackson
         return String.format(
-                "fixture=%s,time=%d,team=%s,player=%s,type=%s,detail=%s",
+                "ts=%s,ss=football-feeder,fixture=%s,time_elapsed=%d,team=%s,player=%s,type=%s,detail=%s",
+                Instant.now().toString(),
                 event.getFixture(),
                 event.getTimeElapsed(),
                 event.getTeamName(),
