@@ -35,39 +35,30 @@ public class TwitterProvider {
                 .header("Authorization", "Bearer " + bearerToken)
                 .GET()
                 .build();
-
         HttpClient client = HttpClient.newHttpClient();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
         if (response.statusCode() != 200) {
             throw new RuntimeException("Error en la solicitud a Twitter. Código: "
                     + response.statusCode() + " - " + response.body());
         }
-
         return parseTweets(response.body());
     }
 
     private String calculateStartTime() {
-        return Instant.now()
-                .minusSeconds(TIME_WINDOW_SECONDS)
-                .atOffset(ZoneOffset.UTC)
-                .format(DateTimeFormatter.ISO_INSTANT);
+        return Instant.now().minusSeconds(TIME_WINDOW_SECONDS).atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT);
     }
 
     private List<Tweet> parseTweets(String responseBody) {
         JSONObject json = new JSONObject(responseBody);
         List<Tweet> tweets = new ArrayList<>();
-
         if (!json.has("data")) {
             return tweets;
         }
-
         JSONArray dataArray = json.getJSONArray("data");
         for (int i = 0; i < dataArray.length(); i++) {
             JSONObject tweetJson = dataArray.getJSONObject(i);
             tweets.add(new Tweet(tweetJson));
         }
-
         return tweets;
     }
 }

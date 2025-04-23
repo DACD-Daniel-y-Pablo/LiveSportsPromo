@@ -24,9 +24,8 @@ public class TwitterStore {
                 puntuacion INTEGER NULL
             );
         """;
-
         try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement stmt = conn.prepareStatement(createTableSQL)) {
+            PreparedStatement stmt = conn.prepareStatement(createTableSQL)) {
             stmt.execute();
             System.out.println("✅ Base de datos inicializada.");
         } catch (SQLException e) {
