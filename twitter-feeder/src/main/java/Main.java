@@ -1,6 +1,6 @@
-import provider.TwitterProvider;
-import store.TwitterStore;
-import model.Tweet;
+import adapters.TwitterProvider;
+import adapters.TwitterStore;
+import entities.Tweet;
 
 import java.util.List;
 import java.util.Scanner;

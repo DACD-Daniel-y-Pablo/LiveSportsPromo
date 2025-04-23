@@ -1,6 +1,6 @@
-package provider;
+package adapters;
 
-import model.Tweet;
+import entities.Tweet;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

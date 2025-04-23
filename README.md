@@ -17,16 +17,3 @@ La API utilizará fuentes de noticias en tiempo real para medir la repercusión 
 
 Si un jugador marca un gol decisivo, se consultará NewsAPI para analizar cuántos medios lo reportan y con qué intensidad. Cuantas más menciones tenga, mayor será el descuento aplicado a su camiseta en la tienda online.  
 
-
-## Estructura del Módulo:
-
-
-    ├─twitter-feeder
-    └─provider
-        │   └─ TwitterProvider.java  <-- Lógica de peticiones HTTP a Twitter
-        │
-        ├─ store
-        │   └─ TwitterStore.java
-        │
-        └─ model
-            └─ model.Tweet.java

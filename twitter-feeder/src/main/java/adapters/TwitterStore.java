@@ -1,6 +1,6 @@
-package store;
+package adapters;
 
-import model.Tweet;
+import entities.Tweet;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
