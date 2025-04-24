@@ -1,12 +1,10 @@
 package useCases;
 
-import adapters.ActiveMQEventSender;
-import adapters.ApiFixtureProvider;
-import adapters.MockFixtureProvider;
-import adapters.SqliteEventStore;
 import entities.Event;
 import entities.Fixture;
 import entities.FootballLeague;
+import ports.FixtureEventStore;
+import ports.FixtureProvider;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -23,10 +21,10 @@ import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
 public class Control {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private final MockFixtureProvider api;
-    private final ActiveMQEventSender db;
+    private final FixtureProvider api;
+    private final FixtureEventStore db;
 
-    public Control(MockFixtureProvider api, ActiveMQEventSender db) {
+    public Control(FixtureProvider api, FixtureEventStore db) {
         this.api = api;
         this.db = db;
     }
