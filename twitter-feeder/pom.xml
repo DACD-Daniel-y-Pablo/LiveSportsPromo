@@ -19,9 +19,20 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.11.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.twitter4j</groupId>
             <artifactId>twitter4j-core</artifactId>
             <version>4.0.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-client</artifactId>
+            <version>5.19.0</version>
         </dependency>
         <dependency>
             <groupId>org.xerial</groupId>
@@ -33,6 +44,7 @@
             <artifactId>json</artifactId>
             <version>20210307</version>
         </dependency>
+
     </dependencies>
 
 </project>
