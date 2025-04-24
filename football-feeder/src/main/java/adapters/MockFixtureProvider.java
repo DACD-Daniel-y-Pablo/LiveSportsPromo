@@ -19,13 +19,10 @@ public class MockFixtureProvider implements FixtureProvider {
     @Override
     public ArrayList<Fixture> getFixturesByDate(LocalDate date, FootballLeague league) throws IOException {
         ArrayList<Fixture> fixtures = new ArrayList<>();
-
-        // Generar 1-4 partidos ficticios
         int numFixtures = 1;
-
         for (int i = 0; i < numFixtures; i++) {
             fixtures.add(new Fixture(
-                    random.nextInt(10000), // ID aleatorio
+                    random.nextInt(10000),
                     "Equipo Local " + (i + 1),
                     "Equipo Visitante " + (i + 1),
                     LocalDateTime.of(LocalDate.now(), LocalTime.now().minusHours(1)),
@@ -34,7 +31,6 @@ public class MockFixtureProvider implements FixtureProvider {
                     league
             ));
         }
-
         return fixtures;
     }
 
@@ -47,25 +43,17 @@ public class MockFixtureProvider implements FixtureProvider {
                 "Yellow Card", "Red Card", "Substitution In",
                 "Substitution Out", "Goal cancelled by VAR", "Penalty confirmed by VAR"
         };
-
-        // Generar 1-3 eventos aleatorios por partido
         int numEvents = 1 + random.nextInt(3);
-
         for (int i = 0; i < numEvents; i++) {
-            int minute = random.nextInt(91); // Minutos entre 0-90
-            boolean isHomeTeam = random.nextBoolean();
-            String team = isHomeTeam ? fixture.getHomeTeam() : fixture.getAwayTeam();
-
             events.add(new Event(
                     fixture.getFixture(),
-                    minute,
-                    team,
-                    "Jugador " + (random.nextInt(23) + 1), // Jugador 1-23
+                    random.nextInt(91),
+                    random.nextBoolean() ? fixture.getHomeTeam() : fixture.getAwayTeam(),
+                    "Jugador " + (random.nextInt(23) + 1),
                     eventTypes[random.nextInt(eventTypes.length)],
                     details[random.nextInt(details.length)]
             ));
         }
-
         return events;
     }
 

@@ -40,16 +40,13 @@ public class ActiveMQEventSender implements FixtureEventStore {
     }
 
     private void sendEventIfNotSentBefore(Event event, Session session, MessageProducer producer) throws JMSException {
-        String eventKey = generateEventKey(event);
-        if (!sentEventsCache.contains(eventKey)) {
+        if (!sentEventsCache.contains(event.generateEventKey())) {
             TextMessage message = session.createTextMessage(serializeEvent(event));
             producer.send(message);
-
-            sentEventsCache.add(eventKey);
-
-            System.out.println("Evento enviado a ActiveMQ: " + eventKey);
+            sentEventsCache.add(event.generateEventKey());
+            System.out.println("Evento enviado a ActiveMQ: " + event.generateEventKey());
         } else {
-            System.out.println("Omitiendo evento ya enviado: " + eventKey);
+            System.out.println("Omitiendo evento ya enviado: " + event.generateEventKey());
         }
     }
 
@@ -62,14 +59,6 @@ public class ActiveMQEventSender implements FixtureEventStore {
     private MessageProducer createProducer(Session session) throws JMSException {
         Destination destination = session.createTopic(topicName);
         return session.createProducer(destination);
-    }
-
-    private String generateEventKey(Event event) {
-        return String.format("%s|%d|%s|%s",
-                event.getFixture(),
-                event.getTimeElapsed(),
-                event.getPlayerName(),
-                event.getTypeEvent());
     }
 
     private String serializeEvent(Event event) {
