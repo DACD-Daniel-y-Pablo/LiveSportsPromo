@@ -38,11 +38,8 @@ public class MockFixtureProvider implements FixtureProvider {
     public ArrayList<Event> getEventsByFixture(Fixture fixture) throws IOException {
         ArrayList<Event> events = new ArrayList<>();
         String[] eventTypes = {"Goal", "Card", "subst", "Var"};
-        String[] details = {
-                "Normal Goal", "Penalty", "Missed Penalty",
-                "Yellow Card", "Red Card", "Substitution In",
-                "Substitution Out", "Goal cancelled by VAR", "Penalty confirmed by VAR"
-        };
+        String[] details = {"Normal Goal", "Penalty", "Missed Penalty", "Yellow Card", "Red Card", "Substitution In",
+                "Substitution Out", "Goal cancelled by VAR", "Penalty confirmed by VAR"};
         int numEvents = 1 + random.nextInt(3);
         for (int i = 0; i < numEvents; i++) {
             events.add(new Event(
