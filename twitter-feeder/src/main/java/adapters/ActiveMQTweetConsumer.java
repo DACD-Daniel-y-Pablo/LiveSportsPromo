@@ -37,6 +37,8 @@ public class ActiveMQTweetConsumer implements MessageListener, AutoCloseable {
         }
     }
 
+
+
     private String extract(String payload, String key) {
         for (String part : payload.split(",")) {
             String[] kv = part.split("=", 2);

@@ -20,11 +20,10 @@ public class ActiveMQTweetSender implements TweetSender, AutoCloseable {
     }
 
     @Override
-    public void send(TweetResult tr) throws JMSException {
-        // Serialización simple
+    public void send(TweetResult tweet) throws JMSException {
         String payload = String.format(
                 "tweet=%s,likes=%d,comments=%d,retweets=%d",
-                tr.getText(), tr.getLikes(), tr.getComments(), tr.getRetweets()
+                tweet.getText(), tweet.getLikes(), tweet.getComments(), tweet.getRetweets()
         );
         TextMessage msg = session.createTextMessage(payload);
         producer.send(msg);

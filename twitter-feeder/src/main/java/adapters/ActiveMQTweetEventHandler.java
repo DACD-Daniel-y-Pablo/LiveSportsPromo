@@ -18,7 +18,7 @@ public class ActiveMQTweetEventHandler implements TweetEventHandler {
 
     @Override
     public void handle(String player, String event) throws JMSException {
-        TweetResult tr = useCase.generate(event, player);
-        sender.send(tr);
+        TweetResult tweet = useCase.generate(event, player);
+        sender.send(tweet);
     }
 }
