@@ -25,8 +25,7 @@ public class ActiveMQTweetSender implements TweetSender, AutoCloseable {
                 "tweet=%s,likes=%d,comments=%d,retweets=%d",
                 tweet.getText(), tweet.getLikes(), tweet.getComments(), tweet.getRetweets()
         );
-        TextMessage msg = session.createTextMessage(payload);
-        producer.send(msg);
+        producer.send(session.createTextMessage(payload));
     }
 
     @Override

@@ -1,11 +1,11 @@
 package adapters;
 
 import entities.TweetResult;
-import usecases.GenerateTweetUseCase;
+import ports.TweetProvider;
 
 import java.util.*;
 
-public class MockTwitterProvider implements GenerateTweetUseCase {
+public class MockTwitterProvider implements TweetProvider {
 
     private static final Random random = new Random();
 
@@ -19,10 +19,10 @@ public class MockTwitterProvider implements GenerateTweetUseCase {
 
     private Map<String, List<String>> crearDiccionario(String jugador) {
         Map<String, List<String>> diccionario = new HashMap<>();
-        diccionario.put("Goal", generarTweetsGol(jugador));
-        diccionario.put("Card", generarTweetsTarjeta(jugador));
-        diccionario.put("Subst", generarTweetsSubstitucion(jugador));
-        diccionario.put("Var", generarTweetsVar(jugador));
+        diccionario.put("goal", generarTweetsGol(jugador));
+        diccionario.put("card", generarTweetsTarjeta(jugador));
+        diccionario.put("subst", generarTweetsSubstitucion(jugador));
+        diccionario.put("var", generarTweetsVar(jugador));
         return diccionario;
     }
 

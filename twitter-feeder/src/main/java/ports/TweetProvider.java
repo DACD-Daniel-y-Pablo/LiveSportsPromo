@@ -1,7 +1,7 @@
-package usecases;
+package ports;
 
 import entities.TweetResult;
 
-public interface GenerateTweetUseCase {
+public interface TweetProvider {
     TweetResult generate(String type, String player);
 }
