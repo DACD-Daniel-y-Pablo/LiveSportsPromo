@@ -63,7 +63,8 @@ public class ActiveMQEventSender implements FixtureEventStore {
 
     private String serializeEvent(Event event) {
         return String.format(
-                "ts=%s,ss=football-feeder,fixture=%s,time_elapsed=%d,team=%s,player=%s,type=%s,detail=%s",
+                "{ \"ts\":\"%s\",\"ss\":\"football-feeder\",\"fixture\":\"%s\",\"time_elapsed\":%d,\"team\":\"%s\"," +
+                        "\"player\":\"%s\",\"type\":\"%s\",\"detail\":\"%s\"}",
                 Instant.now().toString(),
                 event.getFixture(),
                 event.getTimeElapsed(),

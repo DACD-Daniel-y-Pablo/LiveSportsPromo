@@ -38,7 +38,7 @@ public class Control {
         long delay = Duration.between(LocalDateTime.now(), f.getDateTime()).getSeconds() + 60;
         if (delay > 0) {
             scheduler.schedule(() -> startEventListener(f, calls), delay, TimeUnit.SECONDS);
-            log("Listener programado para: " + f.getDateTime().plusSeconds(60));
+            log("Listener programado para: " + f.getFixture() + " a las " + f.getDateTime().plusSeconds(60));
         } else log("Partido ya comenzó o finalizó");
     }
 
