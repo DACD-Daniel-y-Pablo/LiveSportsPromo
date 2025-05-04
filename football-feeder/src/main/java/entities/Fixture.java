@@ -43,21 +43,17 @@ public class Fixture {
     private void setDateTime(ZoneId zoneId, ZonedDateTime zonedDateTime) {
         this.dateTime = zonedDateTime.withZoneSameInstant(zoneId).toLocalDateTime();
     }
-
     public String getHomeTeam() {
         return homeTeam;
     }
-
 
     public String getAwayTeam() {
         return awayTeam;
     }
 
-
     public LocalDateTime getDateTime() {
         return dateTime;
     }
-
 
     public StatusDescription getStatus() {
         return status;
@@ -66,5 +62,4 @@ public class Fixture {
     public FootballLeague getLeague() {
         return league;
     }
-
 }

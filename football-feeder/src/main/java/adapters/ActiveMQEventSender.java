@@ -12,16 +12,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ActiveMQEventSender implements FixtureEventStore {
-    private static final String DEFAULT_BROKER_URL = "tcp://localhost:61616";
-    private static final String TOPIC_NAME = "EventsTopic";
-
     private final String brokerUrl;
     private final String topicName;
-    private final Set<String> sentEventsCache; // Para evitar duplicados
-
-    public ActiveMQEventSender() {
-        this(DEFAULT_BROKER_URL, TOPIC_NAME);
-    }
+    private final Set<String> sentEventsCache;
 
     public ActiveMQEventSender(String brokerUrl, String topicName) {
         this.brokerUrl = brokerUrl;
@@ -31,35 +24,13 @@ public class ActiveMQEventSender implements FixtureEventStore {
 
     @Override
     public void store(ArrayList<Event> events) throws JMSException, IOException {
-        if (events == null || events.isEmpty()) {
-            return;
-        }
-
+        if (events == null || events.isEmpty()) return;
         try {
-            ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(brokerUrl);
-            Connection connection =connectionFactory.createConnection();
-            connection.start();
-
-            //Creating a non-transactional session to send/receive JMS message.
-            Session session = connection.createSession(false,
-                    Session.AUTO_ACKNOWLEDGE);
-
-            Destination destination = session.createTopic(topicName);
-            MessageProducer producer = session.createProducer(destination);
+            Connection connection = createConnection();
+            Session session = connection.createSession(false,  Session.AUTO_ACKNOWLEDGE);
+            MessageProducer producer = createProducer(session);
             for (Event event : events) {
-                String eventKey = generateEventKey(event);
-                if (!sentEventsCache.contains(eventKey)) {
-                    // Crear y enviar mensaje
-                    TextMessage message = session.createTextMessage(serializeEvent(event));
-                    producer.send(message);
-
-                    // Registrar evento como enviado
-                    sentEventsCache.add(eventKey);
-
-                    System.out.println("Evento enviado a ActiveMQ: " + eventKey);
-                } else {
-                    System.out.println("Omitiendo evento ya enviado: " + eventKey);
-                }
+                sendEventIfNotSentBefore(event, session, producer);
             }
             session.close();
             connection.close();
@@ -68,20 +39,32 @@ public class ActiveMQEventSender implements FixtureEventStore {
         }
     }
 
-    // Genera una clave única para el evento (similar a tu PRIMARY KEY en SQLite)
-    private String generateEventKey(Event event) {
-        return String.format("%s|%d|%s|%s",
-                event.getFixture(),
-                event.getTimeElapsed(),
-                event.getPlayerName(),
-                event.getTypeEvent());
+    private void sendEventIfNotSentBefore(Event event, Session session, MessageProducer producer) throws JMSException {
+        if (!sentEventsCache.contains(event.generateEventKey())) {
+            TextMessage message = session.createTextMessage(serializeEvent(event));
+            producer.send(message);
+            sentEventsCache.add(event.generateEventKey());
+            System.out.println("Evento enviado a ActiveMQ: " + event.generateEventKey());
+        } else {
+            System.out.println("Omitiendo evento ya enviado: " + event.generateEventKey());
+        }
     }
 
-    // Serializa el evento a formato String (podrías usar JSON)
+    private Connection createConnection() throws JMSException {
+        Connection connection = new ActiveMQConnectionFactory(brokerUrl).createConnection();
+        connection.start();
+        return connection;
+    }
+
+    private MessageProducer createProducer(Session session) throws JMSException {
+        Destination destination = session.createTopic(topicName);
+        return session.createProducer(destination);
+    }
+
     private String serializeEvent(Event event) {
-        // Implementación básica - considera usar una librería JSON como Jackson
         return String.format(
-                "ts=%s,ss=football-feeder,fixture=%s,time_elapsed=%d,team=%s,player=%s,type=%s,detail=%s",
+                "{ \"ts\":\"%s\",\"ss\":\"football-feeder\",\"fixture\":\"%s\",\"time_elapsed\":%d,\"team\":\"%s\"," +
+                        "\"player\":\"%s\",\"type\":\"%s\",\"detail\":\"%s\"}",
                 Instant.now().toString(),
                 event.getFixture(),
                 event.getTimeElapsed(),
@@ -92,7 +75,6 @@ public class ActiveMQEventSender implements FixtureEventStore {
         );
     }
 
-    // Método para limpiar la caché si es necesario
     public void clearCache() {
         sentEventsCache.clear();
     }

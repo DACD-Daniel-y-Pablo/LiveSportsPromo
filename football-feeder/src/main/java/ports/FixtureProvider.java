@@ -11,4 +11,5 @@ import java.util.ArrayList;
 public interface FixtureProvider {
     ArrayList<Fixture> getFixturesByDate(LocalDate date, FootballLeague league) throws IOException;
     ArrayList<Event> getEventsByFixture(Fixture fixture) throws IOException;
+    int getCallsLimit();
 }

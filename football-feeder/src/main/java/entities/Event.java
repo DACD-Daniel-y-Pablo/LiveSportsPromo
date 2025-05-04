@@ -43,4 +43,12 @@ public class Event {
     public String getDetailEvent() {
         return detailEvent;
     }
+
+    public String generateEventKey() {
+        return String.format("%s|%d|%s|%s",
+                this.getFixture(),
+                this.getTimeElapsed(),
+                this.getPlayerName(),
+                this.getTypeEvent());
+    }
 }
