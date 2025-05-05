@@ -39,11 +39,12 @@ public class Controller {
     }
 
     private String extract(String payload, String key) {
-        for (String part : payload.split(",")) {
-            String[] kv = part.split("=", 2);
-            if (isKeyMatch(kv, key)) return kv[1].trim();
-        }
-        return null;
+        // Aquí extraemos el valor del JSON manualmente
+        int start = payload.indexOf("\"" + key + "\":\"") + key.length() + 4;  // Ajuste para encontrar el valor de la clave
+        if (start == -1) return null;
+        int end = payload.indexOf("\"", start);
+        if (end == -1) return null;
+        return payload.substring(start, end);
     }
 
     private boolean isKeyMatch(String[] kv, String key) {

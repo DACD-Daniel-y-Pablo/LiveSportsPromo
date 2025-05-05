@@ -21,9 +21,12 @@ public class ActiveMQTweetSender implements TweetSender, AutoCloseable {
 
     @Override
     public void send(TweetResult tweet) throws JMSException {
-        String payload = String.format(
-                "tweet=%s,likes=%d,comments=%d,retweets=%d",
-                tweet.getText(), tweet.getLikes(), tweet.getComments(), tweet.getRetweets()
+        String payload =String.format(
+                "{\"text\":\"%s\",\"likes\":%d,\"retweets\":%d,\"comments\":%d}",
+                tweet.getText(),
+                tweet.getLikes(),
+                tweet.getRetweets(),
+                tweet.getComments()
         );
         producer.send(session.createTextMessage(payload));
     }
