@@ -4,6 +4,7 @@ import entities.TweetResult;
 import ports.TweetSender;
 import javax.jms.*;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.json.JSONObject;
 
 public class ActiveMQTweetSender implements TweetSender, AutoCloseable {
     private final Connection connection;
@@ -21,13 +22,12 @@ public class ActiveMQTweetSender implements TweetSender, AutoCloseable {
 
     @Override
     public void send(TweetResult tweet) throws JMSException {
-        String payload =String.format(
-                "{\"text\":\"%s\",\"likes\":%d,\"retweets\":%d,\"comments\":%d}",
-                tweet.getText(),
-                tweet.getLikes(),
-                tweet.getRetweets(),
-                tweet.getComments()
-        );
+        String payload = new JSONObject()
+                .put("text", tweet.getText())
+                .put("likes", tweet.getLikes())
+                .put("retweets", tweet.getRetweets())
+                .put("comments", tweet.getComments())
+                .toString();
         producer.send(session.createTextMessage(payload));
     }
 
