@@ -1,31 +1,20 @@
-import adapters.TwitterProvider;
-import adapters.TwitterStore;
-import entities.Tweet;
+import adapters.*;
+import usecases.Controller;
 
-import java.util.List;
-import java.util.Scanner;
+import javax.jms.JMSException;
 
 public class Main {
     public static void main(String[] args) {
-        TwitterProvider provider = new TwitterProvider();
-        TwitterStore store = new TwitterStore();
-
-        store.initializeDatabase();
-
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("🔐 Introduce tu bearer token: ");
-        String bearerToken = scanner.nextLine();
-
-        System.out.print("🔍 Introduce tu query para el tweet: ");
-        String query = scanner.nextLine();
-
+        String brokerUrl = "tcp://localhost:61616";
+        String consumeTopic = "EventsTopic";
+        String produceTopic = "tweets";
         try {
-            List<Tweet> tweets = provider.fetchRecentTweets(bearerToken, query);
-            store.insertTweets(tweets);
-            System.out.println("✅ Tweets almacenados con éxito.");
-        } catch (Exception e) {
-            System.err.println("❌ Error al procesar los tweets: " + e.getMessage());
+            new Controller(new ActiveMQTweetSender(brokerUrl, produceTopic), new ActiveMQTweetConsumer(brokerUrl, consumeTopic), new MockTwitterProvider()).run();
+            System.out.println("✅ Consumidor escuchando mensajes. Presiona Ctrl+C para salir...");
+            Thread.currentThread().join();
+        } catch (JMSException | InterruptedException e) {
             e.printStackTrace();
         }
     }
 }
+
