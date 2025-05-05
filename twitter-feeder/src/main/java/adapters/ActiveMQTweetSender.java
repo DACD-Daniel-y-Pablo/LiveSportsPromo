@@ -29,6 +29,7 @@ public class ActiveMQTweetSender implements TweetSender, AutoCloseable {
                 .put("comments", tweet.getComments())
                 .toString();
         producer.send(session.createTextMessage(payload));
+        System.out.println("Enviando el tweet con texto: " + tweet.getText());
     }
 
     @Override
