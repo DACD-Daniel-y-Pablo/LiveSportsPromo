@@ -1,0 +1,43 @@
+El VAR revisa una posible mano de {jugador}.
+Offside milimétrico de {jugador}, gol anulado.
+{jugador} comete falta previa, el VAR interviene.
+El árbitro revisa un posible penalti cometido por {jugador}.
+{jugador} celebra... pero el VAR lo anula.
+Gol de {jugador} revisado por posible fuera de juego.
+El VAR ratifica el gol de {jugador}.
+{jugador} es protagonista en una jugada polémica.
+El VAR revisa si {jugador} estaba adelantado.
+{jugador} pisa al rival, posible roja tras VAR.
+Mano dudosa de {jugador}, el VAR revisa.
+El árbitro acude al monitor por acción de {jugador}.
+VAR analiza si {jugador} tocó el balón con la mano.
+El gol de {jugador} está bajo revisión.
+{jugador} es acusado de falta antes del gol.
+VAR interviene por codazo de {jugador}.
+Gol de {jugador} anulado por fuera de juego.
+{jugador} empuja levemente, el VAR dice que no es penal.
+{jugador} involuntario en la jugada polémica revisada.
+Revisión por posible agresión de {jugador}.
+Gol de {jugador} validado tras revisión.
+{jugador} reclama penalti, el VAR no lo concede.
+El VAR detecta mano de {jugador} y sanciona.
+Fuera de juego posicional de {jugador}, gol no válido.
+{jugador} fue derribado pero el VAR no ve penal.
+Revisión final: {jugador} estaba habilitado.
+El VAR rectifica la decisión contra {jugador}.
+{jugador} intercepta con la mano, el árbitro revisa.
+Acción polémica de {jugador} en el área.
+{jugador} salva una jugada dudosa tras revisión.
+{jugador} pisa al rival pero el VAR no ve nada.
+Gol de {jugador} que necesitó revisión de 3 minutos.
+El árbitro anula el gol de {jugador} tras revisar.
+{jugador} simula penalti y el VAR lo detecta.
+El VAR invalida el penal sobre {jugador}.
+Falta previa de {jugador}, jugada anulada.
+{jugador} se libra de la sanción tras VAR.
+Decisión polémica sobre {jugador} revisada.
+El VAR confirma la infracción de {jugador}.
+{jugador} derriba al rival fuera del área, el VAR lo ve.
+Revisión larga por una acción de {jugador}.
+{jugador} fue protagonista de una jugada confusa.
+El VAR decide que {jugador} no comete penal.

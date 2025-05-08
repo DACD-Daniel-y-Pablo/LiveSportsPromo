@@ -1,0 +1,43 @@
+{jugador} ve la amarilla por protestar.
+Dura entrada de {jugador}, tarjeta clara.
+El árbitro no duda en amonestar a {jugador}.
+{jugador} corta una jugada peligrosa y es sancionado.
+Tarjeta para {jugador} por perder tiempo.
+{jugador} llega tarde y ve la tarjeta.
+{jugador} pisa al rival y se lleva la amarilla.
+Amarilla para {jugador} por sujetar al contrario.
+{jugador} es amonestado por reincidir.
+Tarjeta justa para {jugador} por falta táctica.
+Entrada a destiempo de {jugador}, amarilla.
+{jugador} no mide y se lleva la tarjeta.
+{jugador} protesta y el árbitro le muestra la amarilla.
+Doble amarilla y expulsión para {jugador}.
+{jugador} entra con fuerza desmedida, roja directa.
+Tarjeta para {jugador} por una entrada temeraria.
+{jugador} corta una contra con falta, tarjeta clara.
+El árbitro advierte a {jugador} antes de sacarle tarjeta.
+{jugador} se pasa de revoluciones y es amonestado.
+Falta dura de {jugador}, el árbitro actúa.
+{jugador} acumula su tercera amarilla del torneo.
+{jugador} se va expulsado por conducta antideportiva.
+Dura falta de {jugador} en zona peligrosa.
+Roja directa para {jugador} por juego violento.
+{jugador} pisa al rival y se va a las duchas.
+Tarjeta clara para {jugador} por empujón innecesario.
+{jugador} se juega la expulsión y ve la amarilla.
+Falta táctica de {jugador}, el árbitro no perdona.
+{jugador} recibe tarjeta por cortar una jugada de gol.
+El árbitro no duda ante la entrada de {jugador}.
+{jugador} exagera y el árbitro lo amonesta por simular.
+Tarjeta para {jugador} por demorar el saque.
+{jugador} discute con el árbitro y ve la tarjeta.
+{jugador} impide el saque rápido y se gana la amarilla.
+El árbitro saca tarjeta tras falta de {jugador}.
+{jugador} interrumpe con falta y es sancionado.
+Entrada peligrosa de {jugador}, tarjeta sin discusión.
+{jugador} levanta el pie y ve la amarilla.
+{jugador} se va expulsado tras dura entrada.
+Tarjeta por mano intencional de {jugador}.
+El colegiado no duda con {jugador}: tarjeta.
+{jugador} recibe tarjeta por conducta antideportiva.
+Dura entrada de {jugador} y el árbitro actúa.
