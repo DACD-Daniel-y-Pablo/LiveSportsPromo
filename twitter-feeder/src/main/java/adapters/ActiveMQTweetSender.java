@@ -24,17 +24,15 @@ public class ActiveMQTweetSender implements TweetSender, AutoCloseable {
 
     @Override
     public void send(TweetResult tweet) throws JMSException {
-        String payload = new JSONObject()
-                .put("ss", "twitter-feeder")
-                .put("ts", Instant.now().toString())
-                .put("text", tweet.getText())
-                .put("likes", tweet.getLikes())
-                .put("retweets", tweet.getRetweets())
-                .put("comments", tweet.getComments())
-                .toString();
+        String payload = new JSONObject().put("ss", "twitter-feeder")
+                .put("ts", Instant.now().toString()).put("text", tweet.getText())
+                .put("likes", tweet.getLikes()).put("retweets", tweet.getRetweets())
+                .put("comments", tweet.getComments()).toString();
+        System.out.println("📤 JSON enviado: " + payload);
         producer.send(session.createTextMessage(payload));
-        System.out.println("Enviando el tweet con texto: " + tweet.getText());
     }
+
+
 
     @Override
     public void close() throws JMSException {

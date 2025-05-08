@@ -2,9 +2,7 @@ package usecases;
 
 import adapters.ActiveMQTweetConsumer;
 import entities.TweetResult;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
+import org.junit.jupiter.api.*;
 import ports.TweetProvider;
 import ports.TweetSender;
 
@@ -27,24 +25,30 @@ public class ControllerTest {
 
     @BeforeEach
     public void setUp() throws JMSException {
-        // Redirigir la salida estándar a un ByteArrayOutputStream
+        // Redirigir System.out
         System.setOut(new PrintStream(outputStreamCaptor));
 
-        // Crear mocks
+        // Mocks
         mockSender = mock(TweetSender.class);
         mockProvider = mock(TweetProvider.class);
 
-        // Mock de ActiveMQTweetConsumer solo para capturar el listener
+        // Mock de consumer para capturar el listener
         ActiveMQTweetConsumer mockConsumer = mock(ActiveMQTweetConsumer.class);
         doAnswer(invocation -> {
             listener = invocation.getArgument(0);
             return null;
         }).when(mockConsumer).registerListener(any());
 
-        // Instanciar controller con mocks
+        // Instanciar Controller y registrar listener
         controller = new Controller(mockSender, mockConsumer, mockProvider);
         controller.run();
         assertNotNull(listener, "El listener debe registrarse correctamente");
+    }
+
+    @AfterEach
+    public void tearDown() {
+        // Restaurar System.out
+        System.setOut(originalSystemOut);
     }
 
     @Test
@@ -54,55 +58,62 @@ public class ControllerTest {
         String type = "goal";
         TweetResult fakeResult = new TweetResult("¡Gol de Messi!", 100, 10, 50);
 
-        // Configurar comportamiento del proveedor
         when(mockProvider.generate(type, player)).thenReturn(fakeResult);
 
-        // Construir JSON válido
-        String json = String.format("{\"player\": \"%s\", \"type\": \"%s\"}", player, type);
+        String json = String.format("{\"player\":\"%s\",\"type\":\"%s\"}", player, type);
 
-        // Invocar listener
+        // Simular llegada de mensaje
         listener.accept(json);
 
-        // Verificar que se llame a provider.generate y sender.send
+        // Verificar llamadas
         verify(mockProvider, times(1)).generate(type, player);
-        ArgumentCaptor<TweetResult> captor = ArgumentCaptor.forClass(TweetResult.class);
-        verify(mockSender, times(1)).send(captor.capture());
-        TweetResult sent = captor.getValue();
+        verify(mockSender, times(1)).send(fakeResult);
 
-        // Verificar que el mensaje se haya impreso
-        assertTrue(outputStreamCaptor.toString().contains("Evento leído número 0"));
-
-        assertEquals(fakeResult.getText(), sent.getText());
-        assertEquals(fakeResult.getLikes(), sent.getLikes());
-        assertEquals(fakeResult.getComments(), sent.getComments());
-        assertEquals(fakeResult.getRetweets(), sent.getRetweets());
+        // Opcional: verificar que el controller imprime algo sobre el evento
+        String out = outputStreamCaptor.toString();
+        assertTrue(out.contains("📥 Mensaje recibido"), "Debe imprimir log de recepción");
     }
 
     @Test
-    public void testInvalidJsonMessageDoesNotTriggerSend() throws Exception {
-        // JSON sin claves necesarias
+    public void testInvalidJsonMessageDoesNotTriggerSend() {
         String badJson = "{ \"foo\": \"bar\" }";
 
-        // Invocar listener
         listener.accept(badJson);
 
-        // Verificar que no se llame ni al proveedor ni al sender
         verifyNoInteractions(mockProvider);
         verifyNoInteractions(mockSender);
 
-        // Verificar que no se imprima mensaje de evento leído
-        assertFalse(outputStreamCaptor.toString().contains("Evento leído"));
+        String out = outputStreamCaptor.toString();
+        assertFalse(out.contains("Evento leído"), "No debe procesar JSON inválido");
     }
 
     @Test
     public void testMalformedJsonDoesNotThrow() {
         String malformed = "not a json";
-        // Asegurarse que no lanza excepción
         assertDoesNotThrow(() -> listener.accept(malformed));
+
         verifyNoInteractions(mockProvider);
         verifyNoInteractions(mockSender);
 
-        // Verificar que no se imprima mensaje de evento leído
-        assertFalse(outputStreamCaptor.toString().contains("Evento leído"));
+        String out = outputStreamCaptor.toString();
+        assertFalse(out.contains("Evento leído"), "No debe procesar mensaje mal formado");
+    }
+
+    @Test
+    public void testPrintsReceivedJsonMessage() throws Exception {
+        // Preparamos un JSON válido
+        String player = "Mbappé";
+        String type = "goal";
+        String json = String.format("{\"player\":\"%s\",\"type\":\"%s\"}", player, type);
+
+        TweetResult fakeResult = new TweetResult("¡Gol de Mbappé!", 120, 15, 40);
+        when(mockProvider.generate(type, player)).thenReturn(fakeResult);
+
+        // Ejecutamos
+        listener.accept(json);
+
+        // Verificamos que el JSON fue impreso
+        String out = outputStreamCaptor.toString();
+        assertTrue(out.contains(json), "El JSON recibido debe imprimirse en la consola");
     }
 }

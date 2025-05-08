@@ -12,7 +12,7 @@ public class Controller {
     private final TweetSender sender;
     private final ActiveMQTweetConsumer consumer;
     private final TweetProvider provider;
-    private int eventCount = 0; // Contador para los eventos procesados
+    private int eventCount = 0;
 
     public Controller(TweetSender sender, ActiveMQTweetConsumer consumer, TweetProvider provider) {
         this.sender = sender;
@@ -25,6 +25,7 @@ public class Controller {
     }
 
     void processMessage(String msg) {
+        System.out.println("📥 Mensaje recibido: " + msg);
         try {
             handleIfValid(extract(msg, "player"), extract(msg, "type"), msg);
         } catch (Exception e) {
