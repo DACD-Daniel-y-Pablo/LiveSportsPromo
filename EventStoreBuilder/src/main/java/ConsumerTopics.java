@@ -1,63 +1,62 @@
 import jakarta.jms.*;
 import org.apache.activemq.ActiveMQConnectionFactory;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 
 public class ConsumerTopics {
-    private static final String url = "tcp://localhost:61616";
-    private static final String topic = "EventsTopic"; // Topic name
+    private static final String URL = "tcp://localhost:61616";
+    private static final String[] TOPICS = {"EventsTopic", "tweets"};
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    public void run () throws JMSException {
-        ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(url);
+    public void run() throws JMSException {
+        Session session = connectAndCreateSession();
+        for (String topicName : TOPICS) {
+            setupConsumer(session, topicName);
+        }
+        System.out.println("Listening to topics: EventsTopic and tweets");
+    }
+
+    private Session connectAndCreateSession() throws JMSException {
+        ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(URL);
         Connection connection = connectionFactory.createConnection();
         connection.setClientID("daniel");
         connection.start();
-
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        Destination destination = session.createTopic(topic);
-        MessageConsumer consumer = session.createConsumer(destination);
-
-        consumer.setMessageListener(message -> {
-            try {
-                String jsonText = ((TextMessage) message).getText();
-                JsonNode root = mapper.readTree(jsonText);
-
-                String ss = root.get("ss").asText();
-                String timestamp = root.get("ts").asText();
-
-                // Convert timestamp to LocalDate
-                LocalDate date = Instant.parse(timestamp).atZone(ZoneId.of("UTC")).toLocalDate();
-                String formattedDate = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-
-                saveEventToFile(ss, formattedDate, jsonText);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-
-        System.out.println("running");
+        return connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
     }
 
-    private static void saveEventToFile(String ss, String date, String message) throws IOException {
-        String dirPath = "eventstore/" + topic + "/" + ss;
-        String filePath = dirPath + "/" + date + ".events";
+    private void setupConsumer(Session session, String topicName) throws JMSException {
+        Destination destination = session.createTopic(topicName);
+        MessageConsumer consumer = session.createConsumer(destination);
+        consumer.setMessageListener(message -> processMessage(message, topicName));
+    }
 
-        File dir = new File(dirPath);
-        if (!dir.exists()) {
-            dir.mkdirs();
+    void processMessage(Message message, String topic) {
+        try {
+            String text = ((TextMessage) message).getText();
+            JsonNode root = mapper.readTree(text);
+            String ss = root.has("ss") ? root.get("ss").asText() : "unknown";
+            String ts = root.has("ts") ? root.get("ts").asText() : Instant.now().toString();
+            saveEvent(topic, ss, formatDate(ts), text);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
-            writer.write(message);
-            writer.newLine();
+    String formatDate(String ts) {
+        LocalDate date = Instant.parse(ts).atZone(ZoneId.of("UTC")).toLocalDate();
+        return date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+    }
+
+    void saveEvent(String topic, String ss, String date, String msg) throws IOException {
+        String dir = "eventstore/" + topic + "/" + ss;
+        File f = new File(dir);
+        if (!f.exists() && !f.mkdirs()) throw new IOException("Could not create directory: " + f.getAbsolutePath());
+        try (BufferedWriter w = new BufferedWriter(new FileWriter(dir + "/" + date + ".events", true))) {
+            w.write(msg);
+            w.newLine();
         }
     }
 }
