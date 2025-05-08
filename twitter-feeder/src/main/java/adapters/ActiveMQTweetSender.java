@@ -6,6 +6,8 @@ import javax.jms.*;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.json.JSONObject;
 
+import java.time.Instant;
+
 public class ActiveMQTweetSender implements TweetSender, AutoCloseable {
     private final Connection connection;
     private final Session session;
@@ -23,6 +25,8 @@ public class ActiveMQTweetSender implements TweetSender, AutoCloseable {
     @Override
     public void send(TweetResult tweet) throws JMSException {
         String payload = new JSONObject()
+                .put("ss", "twitter-feeder")
+                .put("ts", Instant.now().toString())
                 .put("text", tweet.getText())
                 .put("likes", tweet.getLikes())
                 .put("retweets", tweet.getRetweets())
