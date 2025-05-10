@@ -39,3 +39,6 @@ build/
 /football-feeder/src/main/resources/.env
 
 eventstore
+
+# token privado de Twitter API
+/twitter.token

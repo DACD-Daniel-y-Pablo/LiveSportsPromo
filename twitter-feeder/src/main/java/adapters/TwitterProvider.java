@@ -1,9 +1,12 @@
 package adapters;
 
-import entities.Tweet;
+import entities.TweetResult;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -17,48 +20,73 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TwitterProvider {
-
     private static final String BASE_URL = "https://api.twitter.com/2/tweets/search/recent";
     private static final int TIME_WINDOW_SECONDS = 180;
+    private final String bearerToken;
 
-    public List<Tweet> fetchRecentTweets(String bearerToken, String query) throws Exception {
-        String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
-        String startTime = calculateStartTime();
+    public TwitterProvider() {
+        this.bearerToken = loadToken("Twitter_token.txt");
+    }
 
-        String url = BASE_URL + "?query=" + encodedQuery
-                + "&tweet.fields=created_at,public_metrics"
-                + "&max_results=10"
-                + "&start_time=" + startTime;
+    private String loadToken(String resourceName) {
+        try (InputStream in = getClass().getClassLoader().getResourceAsStream(resourceName)) {
+            if (in == null) {
+                throw new RuntimeException("No se encontró " + resourceName + " en classpath");
+            }
+            try (BufferedReader r = new BufferedReader(new InputStreamReader(in))) {
+                return r.readLine().trim();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error leyendo token de Twitter", e);
+        }
+    }
 
-        HttpRequest request = HttpRequest.newBuilder()
+    public List<TweetResult> fetchRecentTweets(String query) throws Exception {
+        String url  = buildUrl(query);
+        String body = doHttpGet(url);
+        return parseTweetResults(body);
+    }
+
+    private String buildUrl(String query) {
+        String encoded = URLEncoder.encode(query, StandardCharsets.UTF_8);
+        String start = Instant.now()
+                .minusSeconds(TIME_WINDOW_SECONDS)
+                .atOffset(ZoneOffset.UTC)
+                .format(DateTimeFormatter.ISO_INSTANT);
+        return String.format(
+                "%s?query=%s&tweet.fields=public_metrics&start_time=%s&max_results=10",
+                BASE_URL, encoded, start
+        );
+    }
+
+    private String doHttpGet(String url) throws Exception {
+        HttpRequest req = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Authorization", "Bearer " + bearerToken)
-                .GET()
-                .build();
-        HttpClient client = HttpClient.newHttpClient();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        if (response.statusCode() != 200) {
-            throw new RuntimeException("Error en la solicitud a Twitter. Código: "
-                    + response.statusCode() + " - " + response.body());
+                .GET().build();
+        HttpResponse<String> res = HttpClient.newHttpClient()
+                .send(req, HttpResponse.BodyHandlers.ofString());
+        if (res.statusCode() != 200) {
+            throw new RuntimeException("Twitter API responded: " + res.statusCode());
         }
-        return parseTweets(response.body());
+        return res.body();
     }
 
-    private String calculateStartTime() {
-        return Instant.now().minusSeconds(TIME_WINDOW_SECONDS).atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT);
-    }
-
-    private List<Tweet> parseTweets(String responseBody) {
-        JSONObject json = new JSONObject(responseBody);
-        List<Tweet> tweets = new ArrayList<>();
-        if (!json.has("data")) {
-            return tweets;
+    private List<TweetResult> parseTweetResults(String body) {
+        JSONObject json = new JSONObject(body);
+        List<TweetResult> out = new ArrayList<>();
+        if (!json.has("data")) return out;
+        JSONArray arr = json.getJSONArray("data");
+        for (int i = 0; i < arr.length(); i++) {
+            JSONObject t = arr.getJSONObject(i);
+            JSONObject m = t.getJSONObject("public_metrics");
+            out.add(new TweetResult(
+                    t.getString("text"),
+                    m.optInt("like_count", 0),
+                    m.optInt("reply_count", 0),
+                    m.optInt("retweet_count", 0)
+            ));
         }
-        JSONArray dataArray = json.getJSONArray("data");
-        for (int i = 0; i < dataArray.length(); i++) {
-            JSONObject tweetJson = dataArray.getJSONObject(i);
-            tweets.add(new Tweet(tweetJson));
-        }
-        return tweets;
+        return out;
     }
 }
