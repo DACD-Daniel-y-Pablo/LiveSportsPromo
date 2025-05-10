@@ -21,7 +21,7 @@ public class SentimentAnalyzer {
         var annotation = new Annotation(text);
         pipeline.annotate(annotation);
         List<CoreMap> sentences = annotation.get(SentencesAnnotation.class);
-        if (sentences.isEmpty()) return 5;  // neutral central
+        if (sentences.isEmpty()) return 5;
 
         int sum = 0;
         for (var sentence : sentences) {
@@ -36,7 +36,7 @@ public class SentimentAnalyzer {
             };
             sum += val;
         }
-        double avg = (double) sum / sentences.size();        // 0…4
-        return (int) Math.round((avg / 4.0) * 10.0);          // mapea a 0…10
+        double avg = (double) sum / sentences.size();
+        return (int) Math.round((avg / 4.0) * 10.0);
     }
 }
