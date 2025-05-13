@@ -2,6 +2,7 @@ package adapters;
 
 import entities.TweetResult;
 import ports.TweetProvider;
+import utils.SentimentAnalyzer;
 
 import java.io.*;
 import java.util.*;
@@ -9,8 +10,7 @@ import java.util.*;
 public class MockTwitterProvider implements TweetProvider {
 
     private static final Random random = new Random();
-    private static final String BASE_PATH =
-            "/Users/pablo/Desktop/Trabajo DACD/LiveSportsPromo/twitter-feeder/src/main/resources/";
+    private static final String BASE_PATH = "/Users/pablo/Desktop/Trabajo DACD/LiveSportsPromo/twitter-feeder/src/main/resources/";
     private static final int NUM_TWEETS = 5;
 
     @Override
@@ -27,7 +27,7 @@ public class MockTwitterProvider implements TweetProvider {
             while ((l = r.readLine()) != null) frases.add(l.trim());
             return frases;
         } catch (IOException e) {
-            throw new UncheckedIOException(e); // Nunca ocurrirá, según tu garantía
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -47,7 +47,11 @@ public class MockTwitterProvider implements TweetProvider {
     }
 
     private TweetResult crearTweetResult(String tweet) {
-        return new TweetResult(tweet, r(10000), r(5000), r(7500));
+        int likes = r(10000);
+        int comments = r(5000);
+        int retweets = r(7500);
+        int score = SentimentAnalyzer.score(tweet);
+        return new TweetResult(tweet, likes, comments, retweets, score);
     }
 
     private int r(int max) {
