@@ -56,7 +56,7 @@ public class ControllerTest {
         // Datos de prueba
         String player = "Messi";
         String type = "goal";
-        TweetResult fakeResult = new TweetResult("¡Gol de Messi!", 100, 10, 50);
+        TweetResult fakeResult = new TweetResult("¡Gol de Messi!", 100, 10, 50, 6);
 
         when(mockProvider.generate(type, player)).thenReturn(fakeResult);
 
@@ -106,7 +106,7 @@ public class ControllerTest {
         String type = "goal";
         String json = String.format("{\"player\":\"%s\",\"type\":\"%s\"}", player, type);
 
-        TweetResult fakeResult = new TweetResult("¡Gol de Mbappé!", 120, 15, 40);
+        TweetResult fakeResult = new TweetResult("¡Gol de Mbappé!", 120, 15, 40, 6);
         when(mockProvider.generate(type, player)).thenReturn(fakeResult);
 
         // Ejecutamos

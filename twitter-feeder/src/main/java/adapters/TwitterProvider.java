@@ -3,6 +3,7 @@ package adapters;
 import entities.TweetResult;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import utils.SentimentAnalyzer;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -76,16 +77,18 @@ public class TwitterProvider {
         JSONObject json = new JSONObject(body);
         List<TweetResult> out = new ArrayList<>();
         if (!json.has("data")) return out;
+
         JSONArray arr = json.getJSONArray("data");
         for (int i = 0; i < arr.length(); i++) {
             JSONObject t = arr.getJSONObject(i);
             JSONObject m = t.getJSONObject("public_metrics");
-            out.add(new TweetResult(
-                    t.getString("text"),
-                    m.optInt("like_count", 0),
-                    m.optInt("reply_count", 0),
-                    m.optInt("retweet_count", 0)
-            ));
+
+            String text = t.getString("text");
+            int likes = m.optInt("like_count", 0);
+            int comments = m.optInt("reply_count", 0);
+            int retweets = m.optInt("retweet_count", 0);
+            int score = SentimentAnalyzer.score(text);
+            out.add(new TweetResult(text, likes, comments, retweets, score));
         }
         return out;
     }

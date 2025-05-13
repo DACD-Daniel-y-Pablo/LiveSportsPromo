@@ -56,7 +56,9 @@ LiveSportsPromo/
 |              |         |
 |              |         ├── ports
 |              |         |
-|              |         └── useCases
+|              |         ├── ports
+|              |         |
+|              |         └── utils
 |              |
 |              ├── resources
 |              |
