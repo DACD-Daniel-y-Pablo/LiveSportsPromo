@@ -41,4 +41,4 @@ build/
 eventstore
 
 # token privado de Twitter API
-/twitter.token
+/Twitter_token

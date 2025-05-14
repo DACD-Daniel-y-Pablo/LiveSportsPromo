@@ -10,7 +10,7 @@ import java.util.*;
 public class MockTwitterProvider implements TweetProvider {
 
     private static final Random random = new Random();
-    private static final String BASE_PATH = "";
+    private static final String BASE_PATH = "/tweets/";
     private static final int NUM_TWEETS = 5;
 
     @Override
@@ -21,7 +21,7 @@ public class MockTwitterProvider implements TweetProvider {
     }
 
     private List<String> leerLineas(String relativePath) {
-        try (InputStream is = getClass().getResourceAsStream(BASE_PATH + relativePath)) {
+        try (InputStream is = getClass().getResourceAsStream(relativePath)) {
             if (is == null) throw new FileNotFoundException("Archivo no encontrado en classpath: " + BASE_PATH + relativePath);
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             List<String> frases = new ArrayList<>();
