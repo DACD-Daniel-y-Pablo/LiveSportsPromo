@@ -10,7 +10,7 @@ import java.util.*;
 public class MockTwitterProvider implements TweetProvider {
 
     private static final Random random = new Random();
-    private static final String BASE_PATH = "/Users/pablo/Desktop/Trabajo DACD/LiveSportsPromo/twitter-feeder/src/main/resources/";
+    private static final String BASE_PATH = "/tweets/";
     private static final int NUM_TWEETS = 5;
 
     @Override
@@ -20,16 +20,19 @@ public class MockTwitterProvider implements TweetProvider {
         return crearTweetResult(tweet);
     }
 
-    private List<String> leerLineas(String path) {
-        try (BufferedReader r = new BufferedReader(new FileReader(path))) {
+    private List<String> leerLineas(String relativePath) {
+        try (InputStream is = getClass().getResourceAsStream(BASE_PATH + relativePath)) {
+            if (is == null) throw new FileNotFoundException("Archivo no encontrado en classpath: " + BASE_PATH + relativePath);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             List<String> frases = new ArrayList<>();
-            String l;
-            while ((l = r.readLine()) != null) frases.add(l.trim());
+            String line;
+            while ((line = reader.readLine()) != null) frases.add(line.trim());
             return frases;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
+
 
     private String seleccionar(List<String> frases) {
         List<String> algunas = seleccionarAleatorias(frases, NUM_TWEETS);
