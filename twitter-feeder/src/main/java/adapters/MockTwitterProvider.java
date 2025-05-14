@@ -10,7 +10,7 @@ import java.util.*;
 public class MockTwitterProvider implements TweetProvider {
 
     private static final Random random = new Random();
-    private static final String BASE_PATH = "/tweets/";
+    private static final String BASE_PATH = "";
     private static final int NUM_TWEETS = 5;
 
     @Override
