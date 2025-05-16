@@ -27,17 +27,17 @@ public class Controller {
     void processMessage(String msg) {
         System.out.println("📥 Mensaje recibido: " + msg);
         try {
-            handleIfValid(extract(msg, "player"), extract(msg, "type"), msg);
+            handleIfValid(extract(msg, "player"), extract(msg, "type"), extract(msg, "id"), msg);
         } catch (Exception e) {
             System.err.println("Error processing message: " + e.getMessage());
         }
     }
 
-    private void handleIfValid(String player, String event, String payload) {
+    private void handleIfValid(String player, String event, String id, String payload) {
         if (player != null && event != null) {
             try {
                 System.out.println("Evento leído número " + eventCount + ": " + payload);
-                sender.send(provider.generate(event, player));
+                sender.send(provider.generate(event, player, id));
             } catch (JMSException e) {
                 System.err.println("Failed to send tweet: " + e.getMessage());
             }

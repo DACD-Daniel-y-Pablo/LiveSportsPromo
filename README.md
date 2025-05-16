@@ -10,6 +10,26 @@
 
 LiveSportsPromo/
 |
+|
+├── discount-core/
+|        |
+│        └── src/
+|              ├── main/java/
+|              |         |
+|              |         ├── adapters/
+|              |         |      |
+|              |         |      └── helpers
+|              |         |
+|              |         ├── entities
+|              |         |
+|              |         ├── ports
+|              |         |
+|              |         └── useCases
+|              |
+|              ├── resources
+|              |
+|              └── pom.xml
+|
 ├── EventStoreBuilder/         ← Módulo que ...
 |        |
 │        └── src/

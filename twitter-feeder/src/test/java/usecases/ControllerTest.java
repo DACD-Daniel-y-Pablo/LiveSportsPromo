@@ -56,9 +56,10 @@ public class ControllerTest {
         // Datos de prueba
         String player = "Messi";
         String type = "goal";
+        String id = "01";
         TweetResult fakeResult = new TweetResult("¡Gol de Messi!", 100, 10, 50, 6);
 
-        when(mockProvider.generate(type, player)).thenReturn(fakeResult);
+        when(mockProvider.generate(type, player, id)).thenReturn(fakeResult);
 
         String json = String.format("{\"player\":\"%s\",\"type\":\"%s\"}", player, type);
 
@@ -66,7 +67,7 @@ public class ControllerTest {
         listener.accept(json);
 
         // Verificar llamadas
-        verify(mockProvider, times(1)).generate(type, player);
+        verify(mockProvider, times(1)).generate(type, player, id);
         verify(mockSender, times(1)).send(fakeResult);
 
         // Opcional: verificar que el controller imprime algo sobre el evento
@@ -104,10 +105,11 @@ public class ControllerTest {
         // Preparamos un JSON válido
         String player = "Mbappé";
         String type = "goal";
+        String id = "31";
         String json = String.format("{\"player\":\"%s\",\"type\":\"%s\"}", player, type);
 
         TweetResult fakeResult = new TweetResult("¡Gol de Mbappé!", 120, 15, 40, 6);
-        when(mockProvider.generate(type, player)).thenReturn(fakeResult);
+        when(mockProvider.generate(type, player, id)).thenReturn(fakeResult);
 
         // Ejecutamos
         listener.accept(json);

@@ -14,10 +14,10 @@ public class MockTwitterProvider implements TweetProvider {
     private static final int NUM_TWEETS = 5;
 
     @Override
-    public TweetResult generate(String evento, String jugador) {
+    public TweetResult generate(String evento, String jugador, String id) {
         List<String> frases = leerLineas(BASE_PATH + evento.toLowerCase() + ".txt");
         String tweet = seleccionar(frases).replace("{jugador}", jugador);
-        return crearTweetResult(tweet);
+        return crearTweetResult(tweet, id);
     }
 
     private List<String> leerLineas(String relativePath) {
@@ -49,12 +49,12 @@ public class MockTwitterProvider implements TweetProvider {
         return resultado;
     }
 
-    private TweetResult crearTweetResult(String tweet) {
+    private TweetResult crearTweetResult(String tweet, String id) {
         int likes = r(10000);
         int comments = r(5000);
         int retweets = r(7500);
         int score = SentimentAnalyzer.score(tweet);
-        return new TweetResult(tweet, likes, comments, retweets, score);
+        return new TweetResult(id, tweet, likes, comments, retweets, score);
     }
 
     private int r(int max) {

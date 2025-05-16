@@ -27,10 +27,13 @@ public class ActiveMQTweetSender implements TweetSender, AutoCloseable {
     public void send(TweetResult tweet) throws JMSException {
         int score = SentimentAnalyzer.score(tweet.getText());
         String payload = new JSONObject()
+                .put("id", tweet.getId())
                 .put("ss",       "twitter-feeder")
                 .put("ts",       Instant.now().toString())
-                .put("text",     tweet.getText()).put("likes",    tweet.getLikes())
-                .put("retweets", tweet.getRetweets()).put("comments", tweet.getComments())
+                .put("text",     tweet.getText())
+                .put("likes",    tweet.getLikes())
+                .put("retweets", tweet.getRetweets())
+                .put("comments", tweet.getComments())
                 .put("score",    score).toString();
         System.out.println("📤 JSON enviado: " + payload);
         producer.send(session.createTextMessage(payload));
