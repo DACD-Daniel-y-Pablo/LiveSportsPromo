@@ -1,6 +1,9 @@
 package entities;
 
+import java.util.UUID;
+
 public class Event {
+    private UUID id;
     private final String fixture;
     private final int timeElapsed;
     private final String teamName;
@@ -12,6 +15,7 @@ public class Event {
         if (fixture == null || teamName == null || playerName == null || typeEvent == null || detailEvent == null) {
             throw new NullPointerException("No field can be null");
         }
+        this.id = UUID.randomUUID();
         this.fixture = fixture;
         this.timeElapsed = timeElapsed;
         this.teamName = teamName;
@@ -31,6 +35,8 @@ public class Event {
     public String getTeamName() {
         return teamName;
     }
+
+    public UUID getId() { return id; }
 
     public String getPlayerName() {
         return playerName;
