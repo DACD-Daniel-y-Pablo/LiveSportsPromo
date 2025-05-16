@@ -12,6 +12,7 @@
         <module>twitter-feeder</module>
         <module>football-feeder</module>
         <module>EventStoreBuilder</module>
+        <module>discount-api</module>
     </modules>
 
     <properties>
