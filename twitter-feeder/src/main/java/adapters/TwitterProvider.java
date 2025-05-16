@@ -84,11 +84,12 @@ public class TwitterProvider {
             JSONObject m = t.getJSONObject("public_metrics");
 
             String text = t.getString("text");
+            String id = t.getString("id");
             int likes = m.optInt("like_count", 0);
             int comments = m.optInt("reply_count", 0);
             int retweets = m.optInt("retweet_count", 0);
             int score = SentimentAnalyzer.score(text);
-            out.add(new TweetResult(text, likes, comments, retweets, score));
+            out.add(new TweetResult(id, text, likes, comments, retweets, score));
         }
         return out;
     }
