@@ -174,22 +174,93 @@ public class MysqlRepository implements Repository {
 
     @Override
     public Discount getDiscountById(String id) throws SQLException {
-        return null;
+        String sql = "SELECT * FROM discount WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, Integer.parseInt(id));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Discount(
+                            rs.getInt("id"),
+                            rs.getString("player_name"),
+                            rs.getInt("percentage"),
+                            rs.getString("team_name"),
+                            rs.getDate("expire_date").toLocalDate()
+                    );
+                } else {
+                    throw new SQLException("Discount with ID " + id + " not found.");
+                }
+            }
+        }
     }
 
     @Override
     public Event getEventById(String id) throws SQLException {
-        return null;
+        String sql = "SELECT * FROM event WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Event(
+                            rs.getString("id"),
+                            rs.getString("match_name"),
+                            rs.getInt("time_elapsed"),
+                            rs.getString("team_name"),
+                            rs.getString("player_name"),
+                            rs.getString("type_event"),
+                            rs.getString("detail_event"),
+                            rs.getTimestamp("time_stamp").toLocalDateTime()
+                    );
+                } else {
+                    throw new SQLException("Event with ID " + id + " not found.");
+                }
+            }
+        }
     }
 
     @Override
     public Tweet getTweetById(String id) throws SQLException {
-        return null;
+        String sql = "SELECT * FROM tweet WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, Integer.parseInt(id));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Tweet(
+                            rs.getString("event_id"),
+                            rs.getString("text"),
+                            rs.getInt("likes"),
+                            rs.getInt("comments"),
+                            rs.getInt("retweets"),
+                            rs.getInt("score")
+                    );
+                } else {
+                    throw new SQLException("Tweet with ID " + id + " not found.");
+                }
+            }
+        }
     }
 
     @Override
     public ArrayList<Tweet> getTweetByEventId(String id) throws SQLException {
-        return null;
+        String sql = "SELECT * FROM tweet WHERE event_id = ?";
+        ArrayList<Tweet> tweets = new ArrayList<>();
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Tweet tweet = new Tweet(
+                            rs.getString("event_id"),
+                            rs.getString("text"),
+                            rs.getInt("likes"),
+                            rs.getInt("comments"),
+                            rs.getInt("retweets"),
+                            rs.getInt("score")
+                    );
+                    tweets.add(tweet);
+                }
+            }
+        }
+        return tweets;
     }
 }
 
