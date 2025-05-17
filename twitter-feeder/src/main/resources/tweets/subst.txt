@@ -1,0 +1,43 @@
+{jugador} deja su lugar tras una gran actuación.
+Cambio en el equipo: se retira {jugador}.
+{jugador} se va ovacionado por la afición.
+{jugador} deja el campo tras molestias físicas.
+Sustitución táctica: sale {jugador}.
+{jugador} se marcha visiblemente molesto.
+Ovación para {jugador} al salir del terreno.
+{jugador} se retira con gesto de dolor.
+{jugador} es reemplazado tras recibir golpe.
+Cambio ofensivo: se va {jugador}.
+{jugador} no puede más y pide el cambio.
+Se va {jugador} y entra un delantero.
+{jugador} sale entre aplausos tras su gol.
+Cambio defensivo: se retira {jugador}.
+{jugador} se va tras una discreta actuación.
+Cambio por lesión: {jugador} no continúa.
+El entrenador decide sacar a {jugador}.
+{jugador} es sustituido tras amarilla.
+Descanso para {jugador} pensando en el próximo partido.
+{jugador} deja paso a sangre nueva.
+{jugador} abandona el campo sin mirar al técnico.
+Cambio lógico: sale {jugador} para reforzar el medio.
+El cuarto árbitro indica la salida de {jugador}.
+{jugador} camina lentamente hacia el banco.
+{jugador} deja el campo tras correr mucho.
+Cambio obligado: {jugador} no puede seguir.
+{jugador} se va y se coloca hielo en la rodilla.
+Sustitución programada: se marcha {jugador}.
+{jugador} es cambiado tras rendir a buen nivel.
+El equipo cambia esquema y saca a {jugador}.
+{jugador} se va sin saludar al entrenador.
+Sale {jugador} para evitar la expulsión.
+{jugador} se marcha con cara de pocos amigos.
+Sustitución por fatiga: {jugador} al banquillo.
+{jugador} se va cabizbajo tras el cambio.
+{jugador} saluda al rival al salir del campo.
+{jugador} agradece los aplausos al salir.
+Se prepara el cambio: se va {jugador}.
+{jugador} se despide del campo tras 70 minutos.
+Cambio inesperado: {jugador} fuera del partido.
+{jugador} sale entre abucheos del público rival.
+{jugador} se va sin haber marcado diferencia.
+{jugador} se retira tras cumplir su función táctica.
