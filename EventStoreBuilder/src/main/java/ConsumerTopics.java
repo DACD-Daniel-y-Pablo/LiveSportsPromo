@@ -22,7 +22,7 @@ public class ConsumerTopics {
     private Session connectAndCreateSession() throws JMSException {
         ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(URL);
         Connection connection = connectionFactory.createConnection();
-        connection.setClientID("daniel");
+        connection.setClientID("EventStoreBuilder");
         connection.start();
         return connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
     }
