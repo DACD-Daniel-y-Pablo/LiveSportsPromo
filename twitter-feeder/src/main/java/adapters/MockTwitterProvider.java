@@ -77,7 +77,7 @@ public class MockTwitterProvider implements TweetProvider {
         return resultado;
     }
 
-    private TweetResult crearTweetResult(String tweet, String id) {
+    private TweetResult crearTweetResult(String id, String tweet) {
         int likes = r(10000);
         int comments = r(5000);
         int retweets = r(7500);
