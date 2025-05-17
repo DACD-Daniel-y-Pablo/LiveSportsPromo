@@ -73,7 +73,6 @@ public class MysqlRepository implements Repository {
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 Discount d = new Discount(
-                        rs.getInt("id"),
                         rs.getString("player_name"),
                         rs.getInt("percentage"),
                         rs.getString("team_name"),
@@ -180,7 +179,6 @@ public class MysqlRepository implements Repository {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return new Discount(
-                            rs.getInt("id"),
                             rs.getString("player_name"),
                             rs.getInt("percentage"),
                             rs.getString("team_name"),
@@ -262,5 +260,52 @@ public class MysqlRepository implements Repository {
         }
         return tweets;
     }
+
+    @Override
+    public ArrayList<Event> getEventsByType(String type) throws SQLException {
+        ArrayList<Event> events = new ArrayList<>();
+
+        String query = "SELECT * FROM event WHERE type_event = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setString(1, type);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Event event = new Event(
+                        rs.getString("id"),
+                        rs.getString("match_name"),
+                        rs.getInt("time_elapsed"),
+                        rs.getString("team_name"),
+                        rs.getString("player_name"),
+                        rs.getString("type_event"),
+                        rs.getString("detail_event"),
+                        rs.getTimestamp("time_stamp").toLocalDateTime()
+                );
+                events.add(event);
+            }
+
+        }
+        return events;
+    }
+
+    @Override
+    public boolean isDiscountApplied(String playerName) throws SQLException {
+        String query = "SELECT COUNT(*) FROM discount WHERE player_name = ? AND expire_date > CURDATE()";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setString(1, playerName);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                return count > 0;
+            }
+
+        }
+        return false;
+    }
+
 }
 

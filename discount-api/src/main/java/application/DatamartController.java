@@ -10,7 +10,9 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
 import java.time.LocalDate;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class DatamartController {
     private final MysqlRepository database;
@@ -28,6 +30,7 @@ public class DatamartController {
         for (String topicName : TOPICS) {
             setupConsumer(session, topicName);
         }
+        startDiscountScheduler();
         System.out.println("Listening to topics: EventsTopic and tweets");
     }
 
@@ -45,7 +48,7 @@ public class DatamartController {
         consumer.setMessageListener(message -> processMessage(message, topicName));
     }
 
-    void processMessage(Message message, String topic) {
+    private void processMessage(Message message, String topic) {
         try {
             if (message instanceof TextMessage) {
                 String json = ((TextMessage) message).getText();
@@ -82,5 +85,35 @@ public class DatamartController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void startDiscountScheduler() {
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+            try {
+                ArrayList<Event> goals = database.getEventsByType("Goal");
+
+                for (Event event : goals) {
+                    ArrayList<Tweet> tweets = database.getTweetByEventId(event.getId().toString());
+
+                    if (!tweets.isEmpty()) {
+                        double avgScore = tweets.stream()
+                                .mapToInt(Tweet::getScore)
+                                .average()
+                                .orElse(0.0);
+
+                        if (avgScore > 0 && !database.isDiscountApplied(event.getPlayerName())) {
+                            database.save(new Discount(
+                                    event.getPlayerName(),
+                                    15,
+                                    event.getTeamName(),
+                                    event.getTimestamp().toLocalDate().plusDays(1)));
+                            System.out.println("Descuento aplicado a jugador: " + event.getPlayerName());
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, 0, 30, TimeUnit.SECONDS);
     }
 }
