@@ -5,19 +5,47 @@ import ports.TweetProvider;
 import utils.SentimentAnalyzer;
 
 import java.io.*;
+import java.net.http.HttpTimeoutException;
 import java.util.*;
 
 public class MockTwitterProvider implements TweetProvider {
 
     private static final Random random = new Random();
-    private static final String BASE_PATH = "/tweets/";
+    private static final String BASE_PATH = "/tweets/";   // ruta en classpath
     private static final int NUM_TWEETS = 5;
+
+    private final TwitterProvider twitterProvider;
+
+    public MockTwitterProvider() {
+        this.twitterProvider = new TwitterProvider();
+    }
 
     @Override
     public TweetResult generate(String evento, String jugador, String id) {
+        try {
+            String query = evento + " " + jugador;
+            var tweets = twitterProvider.fetchRecentTweets(query);
+            if (!tweets.isEmpty()) {
+                TweetResult elegido = tweets.get(random.nextInt(tweets.size()));
+                return new TweetResult(
+                        id,
+                        elegido.getText(),
+                        elegido.getLikes(),
+                        elegido.getComments(),
+                        elegido.getRetweets(),
+                        elegido.getScore()
+                );
+            }
+            System.out.println("ℹ️ API devolvió 0 tweets, uso mock");
+        } catch (RuntimeException | HttpTimeoutException e) {
+            System.err.println("⚠️ Error Twitter API (" + e.getMessage() + "), uso mock local");
+        } catch (Exception e) {
+            System.err.println("⚠️ Excepción al llamar a Twitter API, uso mock: " + e.getMessage());
+        }
+
         List<String> frases = leerLineas(BASE_PATH + evento.toLowerCase() + ".txt");
-        String tweet = seleccionar(frases).replace("{jugador}", jugador);
-        return crearTweetResult(tweet, id);
+        String texto = seleccionar(frases).replace("{jugador}", jugador);
+        return crearTweetResult(id, texto);
     }
 
     private List<String> leerLineas(String relativePath) {

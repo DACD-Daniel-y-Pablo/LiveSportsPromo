@@ -10,7 +10,7 @@ public class Main {
         String produceTopic = "tweets";
         try {
             new Controller(new ActiveMQTweetSender(brokerUrl, produceTopic), new ActiveMQTweetConsumer(brokerUrl, consumeTopic), new MockTwitterProvider()).run();
-            System.out.println("✅ Consumidor escuchando mensajes. Presiona Ctrl+C para salir...");
+            System.out.println("✅ Consumidor escuchando mensajes");
             Thread.currentThread().join();
         } catch (JMSException | InterruptedException e) {
             e.printStackTrace();

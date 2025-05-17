@@ -1,4 +1,3 @@
-// entities/TweetResult.java
 package entities;
 
 public class TweetResult {
