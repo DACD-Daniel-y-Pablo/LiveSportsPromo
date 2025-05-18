@@ -5,9 +5,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import utils.SentimentAnalyzer;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;

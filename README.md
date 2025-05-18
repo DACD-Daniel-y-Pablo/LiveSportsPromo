@@ -1,4 +1,4 @@
-# 🚀 LiveSportsPromo
+ # 🚀 LiveSportsPromo
 
 > **Propuesta de valor**: Un sistema modular para capturar datos en tiempo real (tweets, eventos de fútbol), procesarlos con análisis de sentimiento y almacenarlos en un event-store y datamart, listo para alimentar promociones dinámicas mediante una API.
 
@@ -30,7 +30,7 @@ LiveSportsPromo/
 |              |
 |              └── pom.xml
 |
-├── EventStoreBuilder/         ← Módulo que ...
+├── EventStoreBuilder/ 
 |        |
 │        └── src/
 |             ├── main/java/
@@ -44,7 +44,7 @@ LiveSportsPromo/
 |             └── pom.xml
 |
 |
-├── football-feeder/           ← Módulo feeder para datos deportivos (API-Football)
+├── football-feeder/
 |        |
 │        └── src/
 |              ├── main/java/
@@ -64,7 +64,7 @@ LiveSportsPromo/
 |              └── pom.xml
 |
 |
-├── twitter-feeder/            ← Módulo feeder para tweets (API-Twitter)
+├── twitter-feeder/
 |        |
 │        └── src/
 |              ├── main/java/
@@ -80,12 +80,10 @@ LiveSportsPromo/
 |              |         |
 |              |         └── utils
 |              |
-|              ├── resources
-|              |
 |              └── pom.xml
 |
 |
-├── diagrams/                  ← Diagrama UML / Diagrama de Flujo
+├── diagrams/ 
 |
 ├── README.md                  ← Documentación del Proyecto
 |
@@ -118,21 +116,11 @@ Repositorio: https://github.com/DACD-Daniel-y-Pablo/LiveSportsPromo.git
     * `EventsTopic` → para consumir
     * `tweets`      → para publicar
 
-* **Twitter Token**
-  Crea el fichero (no subido al repo):
-
-  ```
-  twitter-feeder/src/main/resources/Twitter_token.txt
-  ```
-
-  Contenido: tu Bearer Token de la API v2 de Twitter.
-
 ---
 
 ## 🏗️ Arquitectura
 
-![Arquitectura general](docs/architecture.png)
-
+** Añadir imágenes **
   ```
                                                         +------------------------+
                                                         |     API-Football       |
@@ -167,13 +155,12 @@ Repositorio: https://github.com/DACD-Daniel-y-Pablo/LiveSportsPromo.git
 
 > *Figura: flujo de datos entre feeders, broker (ActiveMQ), Event Store y Business Unit.*
 
-* **Feeder modules**
 
+* **Feeder modules**
     * `football-feeder`: Lee la API-Football y publica JSON de eventos
     * `twitter-feeder`: Lee tweets (mock o real), analiza sentimiento y publica JSON con `score`
 
 * **Broker**: ActiveMQ
-
 * **EventStoreBuilder**: consume topics y escribe ficheros
   `eventstore/{topic}/{ss}/{YYYYMMDD}.events`
 
@@ -185,11 +172,6 @@ Repositorio: https://github.com/DACD-Daniel-y-Pablo/LiveSportsPromo.git
 
 * **README.md**:
 
-* **diagrams/**:
-    * `feeders.drawio`
-    * `eventstore.drawio`
-    * `business-unit.drawio`
-    * `general.drawio`
 ---
 
 ## 🧪 Ejemplo de Uso
@@ -200,10 +182,10 @@ Repositorio: https://github.com/DACD-Daniel-y-Pablo/LiveSportsPromo.git
 
 ## 📚 Buenas Prácticas y Patrones
 
-* **Ports & Adapters (Hexagonal)**
+* **Ports & Adapters (Arquitectura Hexagonal)**
 * **Single Responsibility**: cada módulo se encarga de una fuente y persistencia distinta
 * **Event-Driven**: pub/sub con ActiveMQ
-* **Clean Code** y pruebas unitarias con Mockito / JUnit
+* **Clean Code**
 
 ---
 
