@@ -4,6 +4,8 @@ import domain.Discount;
 import domain.Event;
 import domain.Tweet;
 import infrastructure.ports.Repository;
+
+import java.time.LocalDate;
 import java.util.*;
 import java.sql.*;
 
@@ -307,5 +309,31 @@ public class MysqlRepository implements Repository {
         return false;
     }
 
+    @Override
+    public void deleteTweetsByEventId(String eventId) throws SQLException {
+        String query = "DELETE FROM tweet WHERE event_id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, eventId);
+            statement.executeUpdate();
+        }
+    }
+
+    @Override
+    public void deleteEventById(String eventId) throws SQLException {
+        String query = "DELETE FROM event WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, eventId);
+            statement.executeUpdate();
+        }
+    }
+
+    @Override
+    public void deleteExpiredDiscounts() throws SQLException {
+        String query = "DELETE FROM discount WHERE expire_date <= ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setDate(1, java.sql.Date.valueOf(LocalDate.now()));
+            statement.executeUpdate();
+        }
+    }
 }
 

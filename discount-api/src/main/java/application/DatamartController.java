@@ -10,6 +10,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +31,7 @@ public class DatamartController {
         for (String topicName : TOPICS) {
             setupConsumer(session, topicName);
         }
+        startCleanerScheduler();
         startDiscountScheduler();
         System.out.println("Listening to topics: EventsTopic and tweets");
     }
@@ -114,6 +116,33 @@ public class DatamartController {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }, 0, 30, TimeUnit.SECONDS);
+        }, 10, 30, TimeUnit.SECONDS);
     }
+
+    public void startCleanerScheduler() {
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+            cleanOldEventsAndTweets();
+        }, 0, 1, TimeUnit.HOURS);
+    }
+
+    public void cleanOldEventsAndTweets() {
+        try {
+            database.deleteExpiredDiscounts();
+            ArrayList<Event> allEvents = database.getAllEvents();
+            LocalDateTime now = LocalDateTime.now();
+
+            for (Event event : allEvents) {
+                LocalDateTime eventDate = event.getTimestamp();
+                if (eventDate.isBefore(now.minusHours(6))) {
+                    String eventId = event.getId().toString();
+                    database.deleteTweetsByEventId(eventId);
+                    database.deleteEventById(eventId);
+                    System.out.println("Evento y tweets eliminados para el evento ID: " + eventId);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }
