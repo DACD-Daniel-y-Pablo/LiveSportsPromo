@@ -12,9 +12,9 @@ import java.sql.*;
 public class MysqlRepository implements Repository {
     private final Connection connection;
 
-    public MysqlRepository() {
+    public MysqlRepository(String url, String user, String password) {
         try {
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/discount_promo", "root", "root");
+            connection = DriverManager.getConnection(url, user, password);
             initializeDatabase();
         } catch (SQLException e) {
             throw new RuntimeException("Error connecting to database", e);

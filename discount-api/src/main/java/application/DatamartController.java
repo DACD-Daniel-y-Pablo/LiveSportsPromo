@@ -9,7 +9,7 @@ import infrastructure.adapters.MysqlRepository;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
-import java.time.LocalDate;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
@@ -17,132 +17,108 @@ import java.util.concurrent.TimeUnit;
 
 public class DatamartController {
     private final MysqlRepository database;
-    private static final String URL = "tcp://localhost:61616";
-    private static final String[] TOPICS = {"EventsTopic", "tweets"};
-    private final ObjectMapper objectMapper;
+    private  final String URL;
+    private final String[] TOPICS;
+    private final ObjectMapper mapper = new ObjectMapper();
 
-    public DatamartController(MysqlRepository db) {
+    public DatamartController(MysqlRepository db, String url, String[] topics) {
         this.database = db;
-        this.objectMapper = new ObjectMapper();
+        this.URL = url;
+        this.TOPICS = topics;
     }
 
     public void run() throws JMSException {
-        Session session = connectAndCreateSession();
-        for (String topicName : TOPICS) {
-            setupConsumer(session, topicName);
-        }
-        startCleanerScheduler();
-        startDiscountScheduler();
-        System.out.println("Listening to topics: EventsTopic and tweets");
+        Session session = connect();
+        for (String topic : TOPICS) listenToTopic(session, topic);
+        scheduleCleanUp();
+        scheduleDiscounts();
+        System.out.println("Listening to: EventsTopic and tweets");
     }
 
-    private Session connectAndCreateSession() throws JMSException {
-        ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(URL);
-        Connection connection = connectionFactory.createConnection();
-        connection.setClientID("businessUnit");
-        connection.start();
-        return connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+    private Session connect() throws JMSException {
+        Connection conn = new ActiveMQConnectionFactory(URL).createConnection();
+        conn.setClientID("businessUnit");
+        conn.start();
+        return conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
     }
 
-    private void setupConsumer(Session session, String topicName) throws JMSException {
-        Destination destination = session.createTopic(topicName);
-        MessageConsumer consumer = session.createConsumer(destination);
-        consumer.setMessageListener(message -> processMessage(message, topicName));
+    private void listenToTopic(Session session, String topic) throws JMSException {
+        Destination dest = session.createTopic(topic);
+        MessageConsumer consumer = session.createConsumer(dest);
+        consumer.setMessageListener(msg -> handleMessage(msg, topic));
     }
 
-    private void processMessage(Message message, String topic) {
+    private void handleMessage(Message message, String topic) {
         try {
             if (message instanceof TextMessage) {
-                String json = ((TextMessage) message).getText();
-
-                if ("EventsTopic".equals(topic)) {
-                    JsonNode node = objectMapper.readTree(json);
-                    Event event = new Event(
-                            node.get("id").asText(),
-                            node.get("fixture").asText(),
-                            node.get("time_elapsed").asInt(),
-                            node.get("team").asText(),
-                            node.get("player").asText(),
-                            node.get("type").asText(),
-                            node.get("detail").asText(),
-                            LocalDate.parse(node.get("ts").asText().substring(0, 10)).atStartOfDay()
-                    );
-                    database.save(event);
-                    System.out.println("Evento guardado: " + event.getId());
-
-                } else if ("tweets".equals(topic)) {
-                    JsonNode node = objectMapper.readTree(json);
-                    Tweet tweet = new Tweet(
-                            node.get("event_id").asText(),
-                            node.get("text").asText(),
-                            node.get("likes").asInt(),
-                            node.get("comments").asInt(),
-                            node.get("retweets").asInt(),
-                            node.get("score").asInt()
-                    );
-                    database.save(tweet);
-                    System.out.println("Tweet guardado: " + tweet.getEvent_id());
-                }
+                processText(((TextMessage) message).getText(), topic);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void startDiscountScheduler() {
+    private void processText(String json, String topic) throws Exception {
+        JsonNode node = mapper.readTree(json);
+        if ("EventsTopic".equals(topic)) saveEvent(node);
+        else if ("tweets".equals(topic)) saveTweet(node);
+    }
+
+    private void saveEvent(JsonNode node) throws SQLException {
+        Event event = new Event(
+                node.get("id").asText(), node.get("fixture").asText(),
+                node.get("time_elapsed").asInt(), node.get("team").asText(),
+                node.get("player").asText(), node.get("type").asText(),
+                node.get("detail").asText(),
+                LocalDateTime.parse(node.get("ts").asText().substring(0, 10) + "T00:00")
+        );
+        database.save(event);
+        System.out.println("Evento guardado: " + event.getId());
+    }
+
+    private void saveTweet(JsonNode node) throws SQLException {
+        Tweet tweet = new Tweet(
+                node.get("event_id").asText(), node.get("text").asText(),
+                node.get("likes").asInt(), node.get("comments").asInt(),
+                node.get("retweets").asInt(), node.get("score").asInt()
+        );
+        database.save(tweet);
+        System.out.println("Tweet guardado: " + tweet.getEvent_id());
+    }
+
+    private void scheduleDiscounts() {
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            try {
-                ArrayList<Event> goals = database.getEventsByType("Goal");
-
-                for (Event event : goals) {
-                    ArrayList<Tweet> tweets = database.getTweetByEventId(event.getId().toString());
-
-                    if (!tweets.isEmpty()) {
-                        double avgScore = tweets.stream()
-                                .mapToInt(Tweet::getScore)
-                                .average()
-                                .orElse(0.0);
-
-                        if (avgScore > 0 && !database.isDiscountApplied(event.getPlayerName())) {
-                            database.save(new Discount(
-                                    event.getPlayerName(),
-                                    15,
-                                    event.getTeamName(),
-                                    event.getTimestamp().toLocalDate().plusDays(1)));
-                            System.out.println("Descuento aplicado a jugador: " + event.getPlayerName());
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            try { applyDiscounts(); } catch (Exception e) { e.printStackTrace(); }
         }, 10, 30, TimeUnit.SECONDS);
     }
 
-    public void startCleanerScheduler() {
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            cleanOldEventsAndTweets();
-        }, 0, 1, TimeUnit.HOURS);
-    }
-
-    public void cleanOldEventsAndTweets() {
-        try {
-            database.deleteExpiredDiscounts();
-            ArrayList<Event> allEvents = database.getAllEvents();
-            LocalDateTime now = LocalDateTime.now();
-
-            for (Event event : allEvents) {
-                LocalDateTime eventDate = event.getTimestamp();
-                if (eventDate.isBefore(now.minusHours(6))) {
-                    String eventId = event.getId().toString();
-                    database.deleteTweetsByEventId(eventId);
-                    database.deleteEventById(eventId);
-                    System.out.println("Evento y tweets eliminados para el evento ID: " + eventId);
-                }
+    private void applyDiscounts() throws SQLException {
+        for (Event e : database.getEventsByType("Goal")) {
+            ArrayList<Tweet> tweets = database.getTweetByEventId(e.getId().toString());
+            if (tweets.isEmpty()) continue;
+            double avg = tweets.stream().mapToInt(Tweet::getScore).average().orElse(0.0);
+            if (avg > 0 && !database.isDiscountApplied(e.getPlayerName())) {
+                database.save(new Discount(e.getPlayerName(), 15, e.getTeamName(), e.getTimestamp().toLocalDate().plusDays(1)));
+                System.out.println("Descuento aplicado a: " + e.getPlayerName());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
+    private void scheduleCleanUp() {
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+            try { clean(); } catch (Exception e) { e.printStackTrace(); }
+        }, 0, 1, TimeUnit.HOURS);
+    }
+
+    private void clean() throws SQLException {
+        database.deleteExpiredDiscounts();
+        for (Event e : database.getAllEvents()) {
+            if (e.getTimestamp().isBefore(LocalDateTime.now().minusHours(6))) {
+                String id = e.getId().toString();
+                database.deleteTweetsByEventId(id);
+                database.deleteEventById(id);
+                System.out.println("Eliminado evento y tweets ID: " + id);
+            }
+        }
+    }
 }
