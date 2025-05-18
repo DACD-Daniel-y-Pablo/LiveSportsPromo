@@ -25,21 +25,8 @@ public class TwitterProvider {
     private static final int TIME_WINDOW_SECONDS = 180;
     private final String bearerToken;
 
-    public TwitterProvider() {
-        this.bearerToken = loadToken("Twitter_token.txt");
-    }
-
-    private String loadToken(String resourceName) {
-        try (InputStream in = getClass().getClassLoader().getResourceAsStream(resourceName)) {
-            if (in == null) {
-                throw new RuntimeException("No se encontró " + resourceName + " en classpath");
-            }
-            try (BufferedReader r = new BufferedReader(new InputStreamReader(in))) {
-                return r.readLine().trim();
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Error leyendo token de Twitter", e);
-        }
+    public TwitterProvider(String bearerToken) {
+        this.bearerToken = bearerToken;
     }
 
     public List<TweetResult> fetchRecentTweets(String query) throws Exception {

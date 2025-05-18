@@ -16,8 +16,8 @@ public class MockTwitterProvider implements TweetProvider {
 
     private final TwitterProvider twitterProvider;
 
-    public MockTwitterProvider() {
-        this.twitterProvider = new TwitterProvider();
+    public MockTwitterProvider(String bearertoken) {
+        this.twitterProvider = new TwitterProvider(bearertoken);
     }
 
     @Override
