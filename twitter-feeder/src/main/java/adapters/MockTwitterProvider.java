@@ -20,10 +20,6 @@ public class MockTwitterProvider implements TweetProvider {
         this.twitterProvider = new TwitterProvider();
     }
 
-    public MockTwitterProvider(TwitterProvider twitterProvider) {
-        this.twitterProvider = twitterProvider;
-    }
-
     @Override
     public TweetResult generate(String evento, String jugador, String id) {
         try {
@@ -47,26 +43,24 @@ public class MockTwitterProvider implements TweetProvider {
             System.err.println("⚠️ Excepción al llamar a Twitter API, uso mock: " + e.getMessage());
         }
 
-        // Leer archivo con ruta correcta (no repetir BASE_PATH)
         List<String> frases = leerLineas(BASE_PATH + evento.toLowerCase() + ".txt");
         String texto = seleccionar(frases).replace("{jugador}", jugador);
         return crearTweetResult(id, texto);
     }
 
-    private List<String> leerLineas(String resourcePath) {
-        try (InputStream is = getClass().getResourceAsStream(resourcePath)) {
-            if (is == null) throw new FileNotFoundException("Archivo no encontrado en classpath: " + resourcePath);
+    private List<String> leerLineas(String relativePath) {
+        try (InputStream is = getClass().getResourceAsStream(relativePath)) {
+            if (is == null) throw new FileNotFoundException("Archivo no encontrado en classpath: " + BASE_PATH + relativePath);
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             List<String> frases = new ArrayList<>();
             String line;
-            while ((line = reader.readLine()) != null) {
-                frases.add(line.trim());
-            }
+            while ((line = reader.readLine()) != null) frases.add(line.trim());
             return frases;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
+
 
     private String seleccionar(List<String> frases) {
         List<String> algunas = seleccionarAleatorias(frases, NUM_TWEETS);
