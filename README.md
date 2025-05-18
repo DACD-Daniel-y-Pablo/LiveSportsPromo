@@ -104,54 +104,104 @@ Repositorio: https://github.com/DACD-Daniel-y-Pablo/LiveSportsPromo.git
 
 ## 🛠️ Módulos y Ejecución
 
-- X
+Este proyecto se compone de 4 módulos principales:
 
+1. `football-feeder`
+2. `twitter-feeder`
+3. `EventStoreBuilder`
+4. `discount-api`
+
+### Requisitos Previos
+
+Antes de ejecutar cualquiera de los módulos, asegúrate de tener:
+
+- **ActiveMQ** descargado y ejecutándose localmente (por defecto en `tcp://localhost:61616`).
+- **MySQL** instalado y en funcionamiento en tu máquina.
+- Una base de datos creada llamada **`discount_promo`**.
+
+### Ejecución de Módulos
+
+#### 🔹 football-feeder
+
+Ejecuta el método `main` del módulo pasando los siguientes argumentos:
+
+```bash
+<FOOTBALL_API_KEY> <BASE_URL_API> <URL_MYSQLITE> EventsTopic <URL_ACTIVEMQ>
+```
 ---
+
+- <FOOTBALL_API_KEY>: Tu clave de API para Football API Sports.
+- <BASE_URL_API>: La url base de consulta a tu api de deportes
+- <URL_MYSQLITE>: La ubicación de tu archivo sqlite en tu ordenador
+- <URL_ACTIVEMQ>: La url donde se conecta al Broker, por default se utiliza `tcp://localhost:61616`
+
+#### 🔹 twitter-feeder
+
+Ejecuta el método `main` del módulo pasando los siguientes argumentos:
+
+```bash 
+<URL_ACTIVEMQ> EventsTopic tweets <TWITTER_BEARER_TOKEN>
+```
+
+- <TWITTER_BEARER_TOKEN>: El Token necesario para conectarte a la api de Twitter.
+
+#### 🔹 EventStoreBuilder
+
+Ejecuta el método `main` del módulo pasando los siguientes argumentos:
+
+```bash 
+<URL_ACTIVEMQ> EventsTopic tweets <TWITTER_BEARER_TOKEN>
+```
+
+#### 🔹 discount-api
+
+Ejecuta el método `main` del módulo pasando los siguientes argumentos:
+
+
+```bash 
+<URL_ACTIVEMQ> EventsTopic tweets jdbc:mysql://localhost:3306/discount_promo <MYSQL_USER> <MYSQL_PASSWORD>
+```
+
+- <MYSQL_USER> y <MYSQL_PASSWORD>: Son el usuario y la contraseña de la conexión a Mysql
+
 
 ## ⚙️ Configuración Previa
 
-* **ActiveMQ**
-  Debe estar corriendo en `tcp://localhost:61616` con dos topics:
+Antes de ejecutar los módulos, asegúrate de tener los siguientes servicios configurados y activos:
 
-    * `EventsTopic` → para consumir
-    * `tweets`      → para publicar
+### *🟢 ActiveMQ*
+
+Debe estar corriendo en `tcp://localhost:61616` con dos topics configurados:
+
+- `EventsTopic` → para consumir
+- `tweets`      → para publicar
+
+### *🟢 MySQL*
+
+Debes tener instalado y en ejecución un servidor **MySQL** en tu máquina local. Además, es necesario que:
+
+- Exista una base de datos creada llamada: `discount_promo`
+- Tengas las credenciales (usuario y contraseña) preparadas para conectarte a dicha base de datos durante la ejecución de los módulos.
 
 ---
 
 ## 🏗️ Arquitectura
 
-** Añadir imágenes **
-  ```
-                                                        +------------------------+
-                                                        |     API-Football       |
-                                                        +------------------------+
-                                                                    |
-                                                                    v
-                                                            +--------------------+
-                                                            |  football-feeder   |
-                                                            +--------------------+
-                                                                     |
-                                                                     v
-                                                               [EventsTopic]
-                                                                     |
-                                                                     |
-                                          +--------------------+     |      +--------------------+
-                                          |  twitter-feeder    | <------->  |   tweets (topic)   |
-                                          +--------------------+            +--------------------+
-                                                                                      |
-                                                                                      v
-                                                                          +-------------------------+
-                                                                          |  EventStoreBuilder      |
-                                                                          | (consume + persistencia)|
-                                                                          +-------------------------+
-                                                                                       |
-                                                                                       |
-                                                                                       v
-                                                                         +-----------------------------+
-                                                                         |    Business Unit (API/GUI)  |
-                                                                         +-----------------------------+
+### football-feeder 
 
-  ```
+![football-feeder](system-design/football-feeder.drawio.png)
+
+### twitter-feeder
+
+![twitter-feeder](system-design/imagen)
+
+### EventStoreBuilder
+
+![twitter-feeder](system-design/EventStoreBuilder.drawio.png)
+
+### discount-api
+
+![twitter-feeder](system-design/discount-api.drawio.png)
 
 > *Figura: flujo de datos entre feeders, broker (ActiveMQ), Event Store y Business Unit.*
 
@@ -164,7 +214,7 @@ Repositorio: https://github.com/DACD-Daniel-y-Pablo/LiveSportsPromo.git
 * **EventStoreBuilder**: consume topics y escribe ficheros
   `eventstore/{topic}/{ss}/{YYYYMMDD}.events`
 
-* **Business-Unit**: X
+* **Business-Unit**: Consume del broker y habilita un endpoint en el que consumir los descuentos disponibles
 
 ---
 
@@ -176,7 +226,15 @@ Repositorio: https://github.com/DACD-Daniel-y-Pablo/LiveSportsPromo.git
 
 ## 🧪 Ejemplo de Uso
 
-- X
+Un ejemplo de uso sería conectarse al endpoint expuesto por el módulo `discount-api`. Desde allí, otras plataformas pueden consultar los descuentos generados por los módulos `football-feeder` y `twitter-feeder`, y aplicarlos en su sistema correspondiente.
+
+Esto permite integrar la lógica de promociones en tiempo real dentro de una plataforma externa (por ejemplo, una tienda online o una app de servicios).
+
+### 🔗 Endpoint de ejemplo
+
+```http
+GET http://localhost:8080/discounts
+```
 
 ---
 
