@@ -1,8 +1,9 @@
-# 🚀 LiveSportsPromo
+ # 🚀 LiveSportsPromo
 
 > **Propuesta de valor**: Un sistema modular para capturar datos en tiempo real (tweets, eventos de fútbol), procesarlos con análisis de sentimiento y almacenarlos en un event-store y datamart, listo para alimentar promociones dinámicas mediante una API.
 
 ---
+
 
 ## 📂 Estructura del Repositorio
 
@@ -11,7 +12,7 @@
 LiveSportsPromo/
 |
 |
-├── discount-core/
+├── discount-api/
 |        |
 │        └── src/
 |              ├── main/java/
@@ -30,21 +31,15 @@ LiveSportsPromo/
 |              |
 |              └── pom.xml
 |
-├── EventStoreBuilder/         ← Módulo que ...
+├── EventStoreBuilder/ 
 |        |
 │        └── src/
 |             ├── main/java/
-|             |      |
-|             |      ├── X
-|             |      |
-|             |      ├── X
-|             |      |
-|             |      └── X
 |             |
 |             └── pom.xml
 |
 |
-├── football-feeder/           ← Módulo feeder para datos deportivos (API-Football)
+├── football-feeder/
 |        |
 │        └── src/
 |              ├── main/java/
@@ -64,7 +59,7 @@ LiveSportsPromo/
 |              └── pom.xml
 |
 |
-├── twitter-feeder/            ← Módulo feeder para tweets (API-Twitter)
+├── twitter-feeder/
 |        |
 │        └── src/
 |              ├── main/java/
@@ -80,12 +75,10 @@ LiveSportsPromo/
 |              |         |
 |              |         └── utils
 |              |
-|              ├── resources
-|              |
 |              └── pom.xml
 |
 |
-├── diagrams/                  ← Diagrama UML / Diagrama de Flujo
+├── diagrams/ 
 |
 ├── README.md                  ← Documentación del Proyecto
 |
@@ -106,124 +99,176 @@ Repositorio: https://github.com/DACD-Daniel-y-Pablo/LiveSportsPromo.git
 
 ## 🛠️ Módulos y Ejecución
 
-- X
+Este proyecto se compone de 4 módulos principales:
+
+1. `football-feeder`
+2. `twitter-feeder`
+3. `EventStoreBuilder`
+4. `discount-api`
+
+## ⚙️ Requisitos del Entorno
+
+Antes de ejecutar cualquiera de los módulos, asegúrate de tener:
+
+* **Java** 11+
+* **Maven** 3.6+
+* **ActiveMQ** descargado y ejecutándose localmente (por defecto en `tcp://localhost:61616`).
+* **MySQL** instalado y en funcionamiento en tu máquina.
+* Una base de datos creada llamada **`discount_promo`**.
+
+## 🛠️ Módulos y Ejecución
+
+Este proyecto consta de cuatro módulos principales:
+
+### football-feeder
+
+```bash
+java -jar football-feeder/target/football-feeder.jar \
+  <FOOTBALL_API_KEY> \
+  <BASE_URL_API> \
+  <URL_SQLITE> \
+  EventsTopic \
+  tcp://localhost:61616
+```
+
+* **FOOTBALL\_API\_KEY**: Clave de la API de deportes.
+* **BASE\_URL\_API**: URL base de la API de fútbol.
+* **URL\_SQLITE**: Ruta al fichero SQLite local.
 
 ---
 
+### twitter-feeder
+
+```bash
+java -jar twitter-feeder/target/twitter-feeder.jar \
+  tcp://localhost:61616 \
+  EventsTopic \
+  tweets \
+  <TWITTER_BEARER_TOKEN>
+```
+
+* **TWITTER\_BEARER\_TOKEN**: Token OAuth2 para la API de Twitter.
+
+---
+
+### EventStoreBuilder
+
+```bash
+java -jar EventStoreBuilder/target/EventStoreBuilder.jar \
+  tcp://localhost:61616 \
+  EventsTopic \
+  tweets
+```
+
+---
+
+### discount-api
+
+```bash
+java -jar discount-api/target/discount-api.jar \
+  tcp://localhost:61616 \
+  EventsTopic \
+  tweets \
+  jdbc:mysql://localhost:3306/discount_promo \
+  <MYSQL_USER> \
+  <MYSQL_PASSWORD>
+```
+
+* **MYSQL\_USER** / **MYSQL\_PASSWORD**: Credenciales de MySQL.
+
+---
 ## ⚙️ Configuración Previa
 
-* **ActiveMQ**
-  Debe estar corriendo en `tcp://localhost:61616` con dos topics:
+Antes de ejecutar los módulos, asegúrate de tener los siguientes servicios configurados y activos:
 
-    * `EventsTopic` → para consumir
-    * `tweets`      → para publicar
+### *🟢 ActiveMQ*
 
-* **Twitter Token**
-  Crea el fichero (no subido al repo):
+Debe estar corriendo en `tcp://localhost:61616` con dos topics configurados:
 
-  ```
-  twitter-feeder/src/main/resources/Twitter_token.txt
-  ```
+- `EventsTopic` → para consumir
+- `tweets`      → para publicar
 
-  Contenido: tu Bearer Token de la API v2 de Twitter.
+### *🟢 MySQL*
+
+Debes tener instalado y en ejecución un servidor **MySQL** en tu máquina local. Además, es necesario que:
+
+- Exista una base de datos creada llamada: `discount_promo`
+- Tengas las credenciales (usuario y contraseña) preparadas para conectarte a dicha base de datos durante la ejecución de los módulos.
 
 ---
 
 ## 🏗️ Arquitectura
 
-![Arquitectura general](docs/architecture.png)
+1. **football-feeder**: Consume API-Football y publica eventos en ActiveMQ.
 
-  ```
-                                                        +------------------------+
-                                                        |     API-Football       |
-                                                        +------------------------+
-                                                                    |
-                                                                    v
-                                                            +--------------------+
-                                                            |  football-feeder   |
-                                                            +--------------------+
-                                                                     |
-                                                                     v
-                                                               [EventsTopic]
-                                                                     |
-                                                                     |
-                                          +--------------------+     |      +--------------------+
-                                          |  twitter-feeder    | <------->  |   tweets (topic)   |
-                                          +--------------------+            +--------------------+
-                                                                                      |
-                                                                                      v
-                                                                          +-------------------------+
-                                                                          |  EventStoreBuilder      |
-                                                                          | (consume + persistencia)|
-                                                                          +-------------------------+
-                                                                                       |
-                                                                                       |
-                                                                                       v
-                                                                         +-----------------------------+
-                                                                         |    Business Unit (API/GUI)  |
-                                                                         +-----------------------------+
+![football-feeder](system-design/football-feeder.drawio.png)
 
-  ```
+2. **twitter-feeder**: Captura tweets y analiza sentimiento, publica en ActiveMQ.
 
-> *Figura: flujo de datos entre feeders, broker (ActiveMQ), Event Store y Business Unit.*
+![twitter-feeder](system-design/Twitter-feeder.png)
 
-* **Feeder modules**
+3. **EventStoreBuilder**: Lee topics y guarda eventos en ficheros.
 
-    * `football-feeder`: Lee la API-Football y publica JSON de eventos
-    * `twitter-feeder`: Lee tweets (mock o real), analiza sentimiento y publica JSON con `score`
+![twitter-feeder](system-design/EventStoreBuilder.drawio.png)
 
-* **Broker**: ActiveMQ
+4. **discount-api**: Consume eventos y expone un endpoint REST.
 
-* **EventStoreBuilder**: consume topics y escribe ficheros
-  `eventstore/{topic}/{ss}/{YYYYMMDD}.events`
+![twitter-feeder](system-design/discount-api.drawio.png)
 
-* **Business-Unit**: X
+### Flujo de datos
+![flujo-de-datos](system-design/Flujo_de_datos.png)
+
+
+* **Business-Unit**: Consume del broker y habilita un endpoint en el que consumir los descuentos disponibles
 
 ---
 
-## 📝 Documentación y Diagramas
+### 🔗 Endpoint de ejemplo
 
-* **README.md**:
+```http
+curl http://localhost:8080/discounts
+```
+Un ejemplo de uso sería conectarse al endpoint expuesto por el módulo `discount-api`. Desde allí, otras plataformas pueden consultar los descuentos generados por los módulos `football-feeder` y `twitter-feeder`, y aplicarlos en su sistema correspondiente.
 
-* **diagrams/**:
-    * `feeders.drawio`
-    * `eventstore.drawio`
-    * `business-unit.drawio`
-    * `general.drawio`
----
+Esto permite integrar la lógica de promociones en tiempo real dentro de una plataforma externa (por ejemplo, una tienda online o una app de servicios).
 
-## 🧪 Ejemplo de Uso
+**Respuesta**:
 
-- X
+```json
+[
+  {
+    "playerName": "C. Stuani",
+    "teamName": "Girona",
+    "percentage": 15,
+    "expireDate": [
+      2025,
+      5,
+      19
+    ]
+  }
+]
+```
 
 ---
 
 ## 📚 Buenas Prácticas y Patrones
 
-* **Ports & Adapters (Hexagonal)**
-* **Single Responsibility**: cada módulo se encarga de una fuente y persistencia distinta
-* **Event-Driven**: pub/sub con ActiveMQ
-* **Clean Code** y pruebas unitarias con Mockito / JUnit
+* **Arquitectura Hexagonal** (Ports & Adapters)
+* **Single Responsibility Principle**
+* **Event-Driven** (Pub/Sub con ActiveMQ)
+* **Clean Code** y nomenclatura consistente
 
 ---
 
 ## 🗓️ Roadmap
 
-* **Sprint 1**: consumo de APIs
-* **Sprint 2**: Uso del Broker + Event Store Builder
-* **Sprint 3**: Business Unit (API REST / CLI)
+|  Sprint | Objetivos                         |
+|---------| --------------------------------- |
+| 1       | Consumo de APIs (fútbol, Twitter) |
+| 2       | Broker y Event Store Builder      |
+| 3       | Business Unit (API REST / CLI)    |
+
 
 ---
 
-| Requisitos                                               | ¿Cubierto? | Comentario                                                                        |
-| -------------------------------------------------------- | ---------- | --------------------------------------------------------------------------------- |
-| Breve descripción del proyecto y propuesta de valor      | ✅          | Muy bien expresado en el pitch inicial (`> Propuesta de valor`)                  |
-| Principios y patrones de diseño aplicados en cada módulo | ✅          | Bien explicados en la sección **Buenas Prácticas y Patrones**                    |
-| Arquitectura de sistema y de aplicación (con diagramas)  | ✅          | Esquema textual y promesa de `docs/architecture.png` (perfecto si luego lo subes)|
-| Documentación en formato README.md                       | ✅          | Markdown limpio, estructurado y legible                                          |
-| Uso del broker y flujo de eventos                        | ✅          | Claramente explicado en **Arquitectura**                                         |
-| Configuración previa del sistema                         | ✅          | Muy útil la sección de `ActiveMQ` y `Twitter_token.txt`                          |
-| Separación modular clara con explicación                 | ✅          | Gracias al bloque **🛠️ Módulos y Ejecución** y el árbol de carpetas              |
-| Justificación de la elección de APIs y estructura del datamart | 🟠 Parcial | Mencionas las APIs, pero **no justificas por qué** se eligió API-Football o la API de Twitter ni cómo se estructura el datamart (campos, organización, formato).               |
-| Instrucciones para compilar y ejecutar cada módulo             | 🟥 Falta   | Tienes un placeholder "X". Deberías incluir los comandos Maven para `package` y ejecución (`java -jar target/...jar` o `mvn exec:java`).                                       |
-| Ejemplos de uso (consultas, peticiones REST, etc.)             | 🟥 Falta   | La sección **🧪 Ejemplo de Uso** está vacía. Debes añadir ejemplos como: cómo publicar un evento manual, cómo se vería un tweet analizado, qué estructura JSON se genera, etc. |
+© 2025 LiveSportsPromo-Daniel-y-Pablo

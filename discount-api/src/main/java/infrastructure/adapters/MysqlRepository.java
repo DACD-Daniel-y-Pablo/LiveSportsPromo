@@ -4,15 +4,17 @@ import domain.Discount;
 import domain.Event;
 import domain.Tweet;
 import infrastructure.ports.Repository;
+
+import java.time.LocalDate;
 import java.util.*;
 import java.sql.*;
 
 public class MysqlRepository implements Repository {
     private final Connection connection;
 
-    public MysqlRepository() {
+    public MysqlRepository(String url, String user, String password) {
         try {
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/discount_promo", "root", "root");
+            connection = DriverManager.getConnection(url, user, password);
             initializeDatabase();
         } catch (SQLException e) {
             throw new RuntimeException("Error connecting to database", e);
@@ -73,7 +75,6 @@ public class MysqlRepository implements Repository {
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 Discount d = new Discount(
-                        rs.getInt("id"),
                         rs.getString("player_name"),
                         rs.getInt("percentage"),
                         rs.getString("team_name"),
@@ -180,7 +181,6 @@ public class MysqlRepository implements Repository {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return new Discount(
-                            rs.getInt("id"),
                             rs.getString("player_name"),
                             rs.getInt("percentage"),
                             rs.getString("team_name"),
@@ -261,6 +261,79 @@ public class MysqlRepository implements Repository {
             }
         }
         return tweets;
+    }
+
+    @Override
+    public ArrayList<Event> getEventsByType(String type) throws SQLException {
+        ArrayList<Event> events = new ArrayList<>();
+
+        String query = "SELECT * FROM event WHERE type_event = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setString(1, type);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Event event = new Event(
+                        rs.getString("id"),
+                        rs.getString("match_name"),
+                        rs.getInt("time_elapsed"),
+                        rs.getString("team_name"),
+                        rs.getString("player_name"),
+                        rs.getString("type_event"),
+                        rs.getString("detail_event"),
+                        rs.getTimestamp("time_stamp").toLocalDateTime()
+                );
+                events.add(event);
+            }
+
+        }
+        return events;
+    }
+
+    @Override
+    public boolean isDiscountApplied(String playerName) throws SQLException {
+        String query = "SELECT COUNT(*) FROM discount WHERE player_name = ? AND expire_date > CURDATE()";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setString(1, playerName);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                return count > 0;
+            }
+
+        }
+        return false;
+    }
+
+    @Override
+    public void deleteTweetsByEventId(String eventId) throws SQLException {
+        String query = "DELETE FROM tweet WHERE event_id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, eventId);
+            statement.executeUpdate();
+        }
+    }
+
+    @Override
+    public void deleteEventById(String eventId) throws SQLException {
+        String query = "DELETE FROM event WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, eventId);
+            statement.executeUpdate();
+        }
+    }
+
+    @Override
+    public void deleteExpiredDiscounts() throws SQLException {
+        String query = "DELETE FROM discount WHERE expire_date <= ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setDate(1, java.sql.Date.valueOf(LocalDate.now()));
+            statement.executeUpdate();
+        }
     }
 }
 

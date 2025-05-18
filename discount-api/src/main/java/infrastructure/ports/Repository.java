@@ -19,4 +19,9 @@ public interface Repository {
     Event getEventById(String id) throws Exception;
     Tweet getTweetById(String id) throws Exception;
     ArrayList<Tweet> getTweetByEventId(String id) throws Exception;
+    ArrayList<Event> getEventsByType(String type) throws Exception;
+    boolean isDiscountApplied(String playerName) throws Exception;
+    void deleteEventById(String eventId) throws Exception;
+    void deleteExpiredDiscounts() throws Exception;
+    void deleteTweetsByEventId(String eventId) throws Exception;
 }
