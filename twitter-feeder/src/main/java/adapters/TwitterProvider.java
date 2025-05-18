@@ -25,8 +25,17 @@ public class TwitterProvider {
     private static final int TIME_WINDOW_SECONDS = 180;
     private final String bearerToken;
 
+    // Constructor sin token: carga token desde archivo
     public TwitterProvider() {
         this.bearerToken = loadToken("Twitter_token.txt");
+    }
+
+    // Constructor con token inyectado (más flexible)
+    public TwitterProvider(String bearerToken) {
+        if (bearerToken == null || bearerToken.isBlank()) {
+            throw new IllegalArgumentException("Bearer token no puede ser nulo o vacío");
+        }
+        this.bearerToken = bearerToken;
     }
 
     private String loadToken(String resourceName) {
@@ -43,7 +52,7 @@ public class TwitterProvider {
     }
 
     public List<TweetResult> fetchRecentTweets(String query) throws Exception {
-        String url  = buildUrl(query);
+        String url = buildUrl(query);
         String body = doHttpGet(url);
         return parseTweetResults(body);
     }
@@ -64,19 +73,24 @@ public class TwitterProvider {
         HttpRequest req = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Authorization", "Bearer " + bearerToken)
-                .GET().build();
+                .GET()
+                .build();
         HttpResponse<String> res = HttpClient.newHttpClient()
                 .send(req, HttpResponse.BodyHandlers.ofString());
+
         if (res.statusCode() != 200) {
-            throw new RuntimeException("Twitter API responded: " + res.statusCode());
+            throw new RuntimeException("Twitter API responded with status code: " + res.statusCode());
         }
         return res.body();
     }
 
     private List<TweetResult> parseTweetResults(String body) {
-        JSONObject json = new JSONObject(body);
         List<TweetResult> out = new ArrayList<>();
-        if (!json.has("data")) return out;
+        JSONObject json = new JSONObject(body);
+
+        if (!json.has("data")) {
+            return out; // no tweets encontrados
+        }
 
         JSONArray arr = json.getJSONArray("data");
         for (int i = 0; i < arr.length(); i++) {
@@ -89,6 +103,7 @@ public class TwitterProvider {
             int comments = m.optInt("reply_count", 0);
             int retweets = m.optInt("retweet_count", 0);
             int score = SentimentAnalyzer.score(text);
+
             out.add(new TweetResult(id, text, likes, comments, retweets, score));
         }
         return out;
