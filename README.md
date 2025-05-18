@@ -3,8 +3,24 @@
 > **Propuesta de valor**: Un sistema modular para capturar datos en tiempo real (tweets, eventos de fútbol), procesarlos con análisis de sentimiento y almacenarlos en un event-store y datamart, listo para alimentar promociones dinámicas mediante una API.
 
 ---
+## 📑 Índice
 
+1. [📂 Estructura del Repositorio](#-estructura-del-repositorio)
+2. [👥 Equipo](#-eq`uipo)
+3. [⚙️ Requisitos del Entorno](#️-requisitos-del-entorno)
+4. [🛠️ Módulos y Ejecución](#️-módulos-y-ejecución)
 
+    * [football-feeder](#football-feeder)
+    * [twitter-feeder](#twitter-feeder)
+    * [EventStoreBuilder](#eventstorebuilder)
+    * [discount-api](#discount-api)
+5. [🏗️ Arquitectura](#️-arquitectura)
+6. [📚 Documentación y Diagramas](#-documentación-y-diagramas)
+7. [🧪 Ejemplos de Uso](#-ejemplos-de-uso)
+8. [📈 Buenas Prácticas y Patrones](#-buenas-prácticas-y-patrones)
+9. [🗓️ Roadmap](#️-roadmap)
+
+---
 ## 📂 Estructura del Repositorio
 
 ```
